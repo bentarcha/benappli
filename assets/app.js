@@ -31,8 +31,8 @@
 
   /* ---------- Hero ---------- */
   function renderHero() {
-    $("#site-title").textContent = SITE.title || "Mes applications";
-    document.title = (SITE.title || "Mes applications") + " — téléchargements et jeux";
+    $("#site-title").textContent = SITE.title || "Mes applications (aucune pub)";
+    document.title = (SITE.title || "Mes applications (aucune pub)") + " — téléchargements et jeux";
     $("#site-tagline").textContent = SITE.tagline || "";
     const android = APPS.filter((a) => !isWeb(a));
     const web = APPS.filter(isWeb);

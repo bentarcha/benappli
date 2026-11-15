@@ -1,6 +1,6 @@
 // Données du catalogue — modifiez ce fichier pour changer les textes, ajouter ou retirer une application.
 window.SITE = {
-  "title": "Mes applications",
+  "title": "Mes applications (aucune pub)",
   "tagline": "Des applications et des jeux, à télécharger gratuitement ou à jouer en ligne.",
   // Laissez vide si les fichiers .apk sont à côté de index.html.
   // Pour les héberger ailleurs (GitHub Releases...), indiquez l'adresse du dossier, par exemple :
