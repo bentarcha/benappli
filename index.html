@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf7f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)">
+  <title>Mes applications — téléchargements et jeux</title>
+  <meta name="description" content="Applications Android (APK) et jeux jouables en ligne, à télécharger gratuitement.">
+  <link rel="icon" href="assets/icons/parchis.svg" type="image/svg+xml">
+
+  <!-- Aperçu quand on partage le lien (WhatsApp, Facebook, Messenger, Telegram...). Adresse du site : voir README. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mes applications">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Mes applications — téléchargements et jeux">
+  <meta property="og:description" content="Applications Android (APK) et jeux jouables dans le navigateur, à télécharger gratuitement.">
+  <meta property="og:url" content="https://bentarcha.github.io/benappli/">
+  <meta property="og:image" content="https://bentarcha.github.io/benappli/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Mes applications : jeux et outils pour Android">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://bentarcha.github.io/benappli/assets/og-image.png">
+
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#catalogue">Aller au catalogue</a>
+
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Téléchargements &amp; jeux</p>
+      <h1 id="site-title">Mes applications</h1>
+      <p class="lead" id="site-tagline"></p>
+      <ul class="stats" id="stats" aria-label="Chiffres clés"></ul>
+      <div class="icon-strip" id="icon-strip" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <main class="wrap" id="catalogue">
+    <section aria-labelledby="catalogue-title">
+      <div class="toolbar">
+        <h2 id="catalogue-title">Catalogue</h2>
+        <div class="controls">
+          <label class="search">
+            <span class="sr">Rechercher une application</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="q" type="search" placeholder="Rechercher…" autocomplete="off">
+          </label>
+          <label class="sort">
+            <span class="sr">Trier par</span>
+            <select id="sort">
+              <option value="recent">Plus récentes</option>
+              <option value="name">Ordre alphabétique</option>
+              <option value="size">Plus légères</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="chips" id="chips" role="group" aria-label="Filtrer par catégorie"></div>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>Aucune application ne correspond à votre recherche.</p>
+    </section>
+
+    <section class="help" aria-labelledby="help-title">
+      <h2 id="help-title">Installer un fichier APK sur Android</h2>
+      <div class="help-grid">
+        <details open>
+          <summary>Comment installer ?</summary>
+          <ol>
+            <li>Ouvrez cette page depuis votre téléphone et touchez <b>Télécharger</b>.</li>
+            <li>Ouvrez le fichier téléchargé (notification, ou dossier <i>Téléchargements</i>).</li>
+            <li>Si Android le demande, autorisez votre navigateur à <b>installer des applications inconnues</b>, puis touchez <b>Installer</b>.</li>
+          </ol>
+        </details>
+        <details>
+          <summary>Un message d'avertissement s'affiche</summary>
+          <p>Ces applications ne passent pas par le Play Store : Android ou Play Protect peut donc afficher un avertissement. Si vous avez téléchargé le fichier depuis cette page, vous pouvez poursuivre l'installation.</p>
+        </details>
+        <details>
+          <summary>Et sur ordinateur ?</summary>
+          <p>Les fichiers APK sont faits pour Android. Depuis un ordinateur, scannez le QR code de la fiche avec votre téléphone, ou jouez directement aux jeux disponibles dans le navigateur.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p id="foot-contact"></p>
+      <p class="foot-links"><a href="confidentialite.html">Confidentialité</a> · Applications proposées telles quelles, sans publicité.</p>
+    </div>
+  </footer>
+
+  <dialog id="dlg" aria-labelledby="dlg-title">
+    <form method="dialog" class="dlg-close"><button aria-label="Fermer">×</button></form>
+    <div id="dlg-body"></div>
+  </dialog>
+
+  <script src="assets/vendor/qrcode.js"></script>
+  <script src="data/apps.js"></script>
+  <script src="assets/common.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

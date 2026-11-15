@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4efe4">
+  <title>Parchís — 4 joueurs, 2 dés</title>
+  <link rel="icon" href="data:,">
+  <style>
+:root {
+  --yellow: #f2c200; --yellow-l: #fbe98a; --yellow-d: #a98600;
+  --blue: #2f6fdd;   --blue-l: #a9c4f5;   --blue-d: #1b4596;
+  --red: #d9382f;    --red-l: #f3aaa5;    --red-d: #8f2019;
+  --green: #2e9f4f;  --green-l: #a6dbb4;  --green-d: #1b6633;
+  --bg: #f4efe4; --ink: #2b2a27; --muted: #6f6a5e; --card: #fffdf7; --line: #d8d0bd;
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.layout { display: grid; grid-template-columns: minmax(320px, 1fr) 360px; gap: 20px;
+  max-width: 1200px; margin: 0 auto; padding: 16px; align-items: start; }
+
+.board-wrap { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+#board { width: 100%; height: auto; display: block; user-select: none; overflow: visible; }
+
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 12px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.panel-head h1 { margin: 0; font-size: 1.5rem; letter-spacing: .02em; }
+.head-actions { display: flex; gap: 6px; }
+
+button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line);
+  padding: 8px 14px; background: #fff; color: var(--ink); }
+button.primary { background: #2b2a27; color: #fff; border-color: #2b2a27; font-weight: 600; }
+button.primary:disabled { opacity: .35; cursor: default; }
+button.ghost { background: transparent; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #4a8bff; outline-offset: 2px; }
+
+.players { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.players li { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center;
+  padding: 7px 10px; border-radius: 10px; border: 2px solid transparent; background: #f7f3e8; }
+.players li.active { border-color: var(--ink); background: #fff; }
+.players .dot { width: 14px; height: 14px; border-radius: 50%; }
+.players .who { font-weight: 600; }
+.players .who small { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.players li.finished { opacity: .75; }
+.players .rank { font-size: 1.15rem; line-height: 1; }
+.ranking { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ranking li { display: grid; grid-template-columns: 34px 14px 1fr; gap: 8px; align-items: center; padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; font-weight: 600; }
+.ranking li:first-child { background: #fff6d6; border-color: #e5c64d; }
+.ranking .medal { font-size: 1.3rem; text-align: center; }
+.ranking .dot { width: 14px; height: 14px; border-radius: 50%; }
+.ranking small { font-weight: 400; color: var(--muted); }
+.players .score { font-size: .85rem; letter-spacing: 2px; color: var(--muted); }
+
+.dice-area { display: grid; gap: 10px; justify-items: center; padding: 8px; border-radius: 12px;
+  background: #f7f3e8; }
+.turn-label { font-weight: 700; min-height: 1.3em; }
+.dice-row { display: flex; gap: 22px; padding-top: 6px; }
+/* Dés 3D : cube CSS, 6 faces à pastilles ; la rotation finale est calculée en JS (ui.js) */
+.die { --s: 56px; width: 62px; height: 62px; perspective: 360px; position: relative;
+  display: grid; place-items: center; transition: opacity .25s; }
+.die::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -4px; height: 8px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.35), transparent); z-index: -1; }
+.cube { width: var(--s); height: var(--s); position: relative; transform-style: preserve-3d;
+  transform: rotateX(42deg) rotateZ(22deg); }
+.face { position: absolute; inset: 0; border-radius: 11px; border: 1.5px solid #b79a64;
+  background:
+    repeating-linear-gradient(94deg, rgba(150,105,45,.07) 0 2px, transparent 2px 7px),
+    radial-gradient(circle at 30% 25%, #f8ebcb 0%, #ecd6a6 55%, #dcc08a 100%);
+  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 9px;
+  backface-visibility: hidden; box-shadow: inset 0 0 9px rgba(110,70,20,.35), inset 0 2px 3px rgba(255,255,255,.45); }
+.face i { width: 10px; height: 10px; border-radius: 50%; place-self: center;
+  background: radial-gradient(circle at 40% 35%, #4a3c30, #17110c 75%); box-shadow: inset 0 1px 1px rgba(255,255,255,.18); }
+.face.f1 { transform: translateZ(calc(var(--s) / 2)); }
+.face.f6 { transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); }
+.face.f3 { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)); }
+.face.f4 { transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); }
+.face.f2 { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); }
+.face.f5 { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); }
+.die.empty { opacity: .4; }
+.die.used { opacity: .4; }
+.die.tossing { animation: toss .75s cubic-bezier(.3,.1,.4,1); }
+@keyframes toss { 0% { transform: translateY(0) scale(1) } 30% { transform: translateY(-14px) scale(1.14) }
+  55% { transform: translateY(0) scale(.97) } 72% { transform: translateY(-8px) scale(1.05) }
+  88% { transform: translateY(0) scale(1) } 100% { transform: translateY(0) } }
+@media (prefers-reduced-motion: reduce) { .die.tossing { animation: none; } }
+.pending { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 28px; }
+.chip { padding: 3px 10px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-weight: 600; font-size: .9rem; }
+.chip.bonus { background: #fff2c2; border-color: #e5c64d; }
+.chip.sum { background: #e8f0ff; border-color: #9db9ee; }
+.hint { color: var(--muted); font-size: .9rem; text-align: center; min-height: 2.4em; }
+
+.options { font-size: .9rem; }
+.options summary { cursor: pointer; color: var(--muted); }
+.options label { display: block; margin: 6px 0 0 2px; }
+
+.log-wrap h2 { margin: 0 0 6px; font-size: 1rem; }
+.log { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; font-size: .88rem;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.log li { padding: 5px 10px; border-bottom: 1px solid #eee7d5; }
+.log li:last-child { border-bottom: 0; }
+.log .c-yellow { border-left: 4px solid var(--yellow); }
+.log .c-blue { border-left: 4px solid var(--blue); }
+.log .c-red { border-left: 4px solid var(--red); }
+.log .c-green { border-left: 4px solid var(--green); }
+
+/* Modales */
+.overlay { position: fixed; inset: 0; background: rgba(30,28,24,.55); display: grid; place-items: center; z-index: 100; padding: 16px; }
+.overlay[hidden] { display: none; }
+.modal { background: var(--card); border-radius: var(--radius); padding: 20px; width: min(480px, 100%); max-height: 90vh; overflow: auto; }
+.modal h2 { margin: 0 0 6px; }
+.modal .muted { color: var(--muted); margin: 0 0 12px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.modal.rules ul { padding-left: 18px; line-height: 1.45; }
+.setup-row { display: grid; grid-template-columns: 18px 1fr 104px 118px; gap: 8px; align-items: center; margin: 8px 0; }
+.setup-row .dot { width: 14px; height: 14px; border-radius: 50%; }
+.setup-row input[type=text], .setup-row select, .field select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; width: 100%; background: #fff; }
+.field { display: grid; gap: 4px; margin-top: 12px; }
+
+/* Plateau */
+.piece { cursor: default; transition: transform .38s cubic-bezier(.3,.7,.3,1); }
+.piece.walking { transition: transform var(--dur, 90ms) linear; }
+.piece.walking .pawn { animation: hop var(--dur, 90ms) ease-out infinite; }
+@keyframes hop { 50% { transform: translateY(-6px); } }
+.piece .pawn { filter: drop-shadow(0 0 1px rgba(255,255,255,.95)); }
+.piece .body { stroke-width: 1.5; stroke-linejoin: round; }
+.piece.movable { cursor: pointer; }
+.piece.movable .halo { opacity: 1; animation: pulse 1s ease-in-out infinite; }
+.piece .halo { opacity: 0; fill: none; stroke: #fff; stroke-width: 3; }
+.piece.selected .halo { opacity: 1; stroke: #111; animation: none; }
+@keyframes pulse { 0%,100% { stroke-width: 2; } 50% { stroke-width: 6; } }
+.marker { cursor: pointer; }
+.marker circle.face { fill: rgba(255,255,255,.92); stroke: #111; stroke-width: 2.5; stroke-dasharray: 5 3; }
+.marker circle.hit, .piece .hit { fill: transparent; stroke: none; }
+.marker text { font: 700 14px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; fill: #111; pointer-events: none; }
+.marker:hover circle.face { fill: #fff6c4; }
+.cell-num { font-family: Arial, 'Segoe UI', system-ui, sans-serif; font-weight: 900; font-size: 15px; fill: #111; stroke: #111; stroke-width: .7px; paint-order: stroke fill; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+
+/* En ligne */
+.panel-head { flex-wrap: wrap; }
+.head-actions { flex-wrap: wrap; justify-content: flex-start; }
+.head-actions button { padding: 6px 10px; font-size: .9rem; }
+.timer { width: 100%; display: grid; gap: 4px; justify-items: center; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.timer[hidden] { display: none; }
+.timer-track { width: 100%; height: 8px; border-radius: 999px; background: #e7e0cd; overflow: hidden; }
+#timer-bar { height: 100%; width: 100%; border-radius: 999px; transition: width .25s linear; }
+.timer.urgent #timer-text { color: #b3261e; font-weight: 700; }
+.timer.mine #timer-text { font-weight: 700; }
+#resume[hidden] { display: none; }
+.net-status { color: #a4551b; font-size: .85rem; min-height: 1em; text-align: center; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #2b2a27; color: #fff;
+  padding: 10px 16px; border-radius: 10px; z-index: 30; max-width: min(90vw, 460px); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+.toast[hidden] { display: none; }
+.modal.online .field input { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; width: 100%; background: #fff; }
+#online-code { text-transform: uppercase; letter-spacing: .3em; font-weight: 700; text-align: center; }
+.modal-actions.left { justify-content: flex-start; }
+.or { text-align: center; color: var(--muted); margin: 14px 0 0; }
+.error { color: #b3261e; min-height: 1.2em; margin-top: 8px; font-size: .9rem; }
+.room-code-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.room-code { font: 800 2.2rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: .25em; padding: 4px 14px;
+  background: #f7f3e8; border-radius: 10px; }
+.room-seats { display: grid; gap: 8px; }
+.seat-row { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 8px 10px;
+  border-radius: 10px; background: #f7f3e8; }
+.seat-row .dot { width: 14px; height: 14px; border-radius: 50%; }
+.seat-ctl { display: flex; gap: 6px; align-items: center; }
+.seat-row small { color: var(--muted); margin-left: 6px; }
+.seat-row select { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.seat-row button { padding: 3px 9px; font-size: .85rem; }
+
+/* ---------- Téléphone ---------- */
+html { -webkit-text-size-adjust: 100%; }
+button, select, input, summary, .piece, .marker { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+@media (max-width: 860px) {
+  .layout { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+  /* le panneau n'est plus une carte : ses éléments se rangent dans la colonne, la barre des dés reste collée en bas */
+  .panel { display: contents; }
+  .panel-head { order: 0; flex-wrap: wrap; padding: 2px 2px 0; }
+  .panel-head h1 { font-size: 1.25rem; }
+  .head-actions { flex-wrap: wrap; gap: 4px; }
+  .head-actions button { padding: 6px 10px; min-height: 38px; font-size: .85rem; }
+  .board-wrap { order: 1; padding: 4px; }
+  .dice-area { order: 2; position: sticky; bottom: calc(6px + env(safe-area-inset-bottom)); z-index: 20;
+    grid-template-columns: auto 1fr; align-items: center; gap: 4px 14px; padding: 8px 12px; border: 1px solid var(--line);
+    box-shadow: 0 -2px 14px rgba(0,0,0,.18); background: #f7f3e8; }
+  .dice-area .turn-label { grid-column: 1 / -1; grid-row: 1; justify-self: center; min-height: 0; }
+  .dice-area .dice-row { grid-column: 1; grid-row: 2; gap: 16px; padding: 12px 8px 8px; }
+  .dice-area #btn-roll { grid-column: 2; grid-row: 2; min-height: 54px; font-size: 1.1rem; width: 100%; }
+  .dice-area #pending, .dice-area .timer, .dice-area #hint, .dice-area #resume, .dice-area #net-status { grid-column: 1 / -1; justify-self: center; text-align: center; }
+  .dice-area #pending { grid-row: 3; min-height: 0; }
+  .dice-area .timer { grid-row: 4; }
+  .dice-area #hint { grid-row: 5; font-size: .82rem; min-height: 0; }
+  .dice-area #resume { grid-row: 6; }
+  .dice-area #net-status { grid-row: 7; min-height: 0; }
+  #players { order: 3; }
+  .options { order: 4; }
+  .log-wrap { order: 5; }
+  #players, .options, .log-wrap { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .players li { padding: 6px 8px; }
+  .log { max-height: 180px; overflow: auto; }
+
+  /* champs : 16 px pour éviter le zoom automatique sur iPhone ; zones tactiles de 44 px */
+  input[type=text], input[type=number], select { font-size: 16px; min-height: 44px; }
+  button { min-height: 44px; }
+  .options label { padding: 6px 0; display: block; }
+
+  /* fenêtres : presque plein écran */
+  .overlay { padding: 8px; align-items: flex-end; }
+  .modal { width: 100%; max-height: 92vh; border-radius: 16px 16px 12px 12px; padding: 16px; }
+  .modal-actions { position: sticky; bottom: -16px; background: var(--card); padding: 10px 0 2px; }
+  .modal-actions button { flex: 1; }
+  .setup-row { grid-template-columns: 18px 1fr 1fr; grid-template-areas: "dot name name" ". color type"; row-gap: 6px; margin: 12px 0; }
+  .setup-row .dot { grid-area: dot; }
+  .setup-row input[type=text] { grid-area: name; }
+  .setup-row .color-sel { grid-area: color; }
+  .setup-row select:not(.color-sel) { grid-area: type; }
+  .seat-row { grid-template-columns: 18px 1fr; row-gap: 6px; }
+  .seat-row .seat-ctl { grid-column: 2; flex-wrap: wrap; }
+  .seat-row select, .seat-row button { min-height: 40px; font-size: 15px; }
+  .ranking li { padding: 10px; }
+}
+
+/* Téléphone en paysage : plateau à gauche (limité par la hauteur), panneau défilant à droite */
+@media (max-width: 960px) and (max-height: 520px) and (orientation: landscape) {
+  .layout { display: grid; grid-template-columns: min(calc(100vh - 16px), 56vw) 1fr; gap: 10px; align-items: start; padding: 8px; }
+  .panel { display: flex; max-height: calc(100vh - 16px); overflow: auto; padding: 8px; gap: 8px; }
+  .panel-head, .board-wrap, .dice-area, #players, .options, .log-wrap { order: 0; }
+  #players, .options, .log-wrap { background: none; border: 0; padding: 0; }
+  .dice-area { position: static; box-shadow: none; grid-template-columns: auto 1fr; }
+  .modal { max-height: 96vh; }
+  .overlay { align-items: center; }
+}
+@media (max-width: 860px) {
+  .marker text { font-size: 22px; }
+  .marker circle.face { r: 20px; stroke-width: 3; }
+  .cell-num { font-size: 17px; }
+}
+
+</style>
+</head>
+<body>
+  <main class="layout">
+    <section class="board-wrap">
+      <svg id="board" viewBox="0 0 760 760" role="img" aria-label="Plateau de Parchís"></svg>
+    </section>
+
+    <aside class="panel">
+      <header class="panel-head">
+        <h1>Parchís</h1>
+        <div class="head-actions">
+          <button id="btn-sound" class="ghost" type="button" title="Activer ou couper le son">🔊 Son</button>
+          <button id="btn-rules" class="ghost" type="button">Règles</button>
+          <button id="btn-online" class="ghost" type="button">En ligne</button>
+          <button id="btn-new" class="ghost" type="button">Nouvelle partie</button>
+        </div>
+      </header>
+
+      <ul id="players" class="players"></ul>
+
+      <div class="dice-area">
+        <div id="turn-label" class="turn-label"></div>
+        <div class="dice-row">
+          <div id="die-1" class="die" aria-label="Dé 1"></div>
+          <div id="die-2" class="die" aria-label="Dé 2"></div>
+        </div>
+        <div id="pending" class="pending" aria-live="polite"></div>
+        <button id="btn-roll" class="primary" type="button">Lancer les dés</button>
+        <div id="timer" class="timer" hidden><div class="timer-track"><div id="timer-bar"></div></div><span id="timer-text"></span></div>
+        <div id="hint" class="hint"></div>
+        <button id="resume" class="primary" type="button" hidden>Reprendre la main</button>
+        <div id="net-status" class="net-status" role="status"></div>
+      </div>
+
+      <details class="options">
+        <summary>Options</summary>
+        <label><input type="checkbox" id="opt-auto" checked> Jouer automatiquement quand un seul coup est possible</label>
+        <label><input type="checkbox" id="opt-numbers" checked> Afficher les numéros de cases</label>
+      </details>
+
+      <section class="log-wrap">
+        <h2>Journal</h2>
+        <ol id="log" class="log"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="alert" hidden></div>
+
+  <!-- Parties en ligne -->
+  <div id="online" class="overlay" hidden>
+    <div class="modal online">
+      <h2>Jouer en ligne</h2>
+
+      <div id="online-entry">
+        <p class="muted" id="online-note">Invitez vos amis avec un lien, ou rejoignez-les avec un code.</p>
+        <label class="field" id="online-server-field" hidden>Adresse du serveur
+          <input type="text" id="online-server" placeholder="http://192.168.1.20:3000" autocomplete="off">
+        </label>
+        <label class="field">Votre nom
+          <input type="text" id="online-name" maxlength="14" autocomplete="nickname">
+        </label>
+        <div class="modal-actions left"><button id="online-create" class="primary" type="button">Inviter</button></div>
+        <div class="or">ou</div>
+        <label class="field">Vous avez reçu un code ?
+          <input type="text" id="online-code" maxlength="4" autocomplete="off" spellcheck="false" placeholder="ABCD">
+        </label>
+        <div class="modal-actions left"><button id="online-join" type="button">Rejoindre</button></div>
+        <div id="online-error" class="error" role="alert"></div>
+        <div class="modal-actions"><button id="online-close" class="ghost" type="button">Fermer</button></div>
+      </div>
+
+      <div id="online-room" hidden>
+        <p class="muted">Invitez vos amis : envoyez-leur ce lien ou ce code.</p>
+        <div class="room-code-row">
+          <span id="room-code" class="room-code" aria-label="Code du salon"></span>
+          <button id="room-copy" type="button">Copier le lien d’invitation</button>
+        </div>
+        <div id="room-seats" class="room-seats"></div>
+        <label class="field" id="room-diff-field">Niveau de l’ordinateur
+          <select id="room-difficulty">
+            <option value="easy">Facile</option>
+            <option value="normal">Normal</option>
+            <option value="hard">Difficile</option>
+          </select>
+        </label>
+        <label class="field" id="room-turn-field">Chronomètre par décision
+          <select id="room-turn">
+            <option value="0">Sans limite</option>
+            <option value="30">30 secondes</option>
+            <option value="60">60 secondes</option>
+            <option value="90">90 secondes</option>
+          </select>
+        </label>
+        <p id="room-wait" class="muted" hidden>En attente du lancement par l’hôte…</p>
+        <div id="room-error" class="error" role="alert"></div>
+        <div class="modal-actions">
+          <button id="room-leave" class="ghost" type="button">Quitter</button>
+          <button id="room-start" class="primary" type="button">Lancer la partie</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Écran de configuration -->
+  <div id="setup" class="overlay" hidden>
+    <form class="modal" id="setup-form">
+      <h2>Nouvelle partie</h2>
+      <p class="muted">4 joueurs, 2 dés. Choisissez qui est humain et qui est piloté par l'ordinateur.</p>
+      <div id="setup-rows"></div>
+      <label class="field">Niveau de l'ordinateur
+        <select id="setup-difficulty">
+          <option value="easy">Facile</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Difficile</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="submit" class="primary">Jouer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Règles -->
+  <div id="rules" class="overlay" hidden>
+    <div class="modal rules">
+      <h2>Règles de cette version</h2>
+      <ul>
+        <li><b>But :</b> faire arriver ses 4 pions au but (au centre) avant les autres. 68 cases communes, puis un couloir privé de 7 cases.</li>
+        <li><b>Deux dés :</b> on peut jouer chaque dé avec un pion différent, ou additionner les deux sur un même pion (touche « 3+4 »).</li>
+        <li><b>Sortir un pion :</b> il faut un <b>5</b> sur un dé (obligatoire si possible), ou deux dés dont la somme fait 5. Si deux pions adverses occupent votre case de sortie, vous mangez le dernier arrivé.</li>
+        <li><b>Doubles :</b> un double permet de rejouer. Trois doubles de suite : le dernier pion déplacé retourne à la maison (sauf s'il est dans le couloir).</li>
+        <li><b>Manger :</b> tomber sur un pion adverse seul, hors case sûre, le renvoie à la maison et donne <b>+20</b> cases à jouer avec n'importe quel pion.</li>
+        <li><b>Cases sûres</b> (grises, étoilées) et cases de sortie : on ne peut pas y être mangé ; deux couleurs peuvent s'y croiser.</li>
+        <li><b>Barrières :</b> deux pions d'une même couleur sur une case forment une barrière que personne ne peut franchir, ni atterrir dessus. Un <b>6</b> sur un dé oblige à ouvrir sa barrière si c'est possible.</li>
+        <li><b>Arrivée :</b> compte exact obligatoire. Un pion arrivé donne <b>+10</b> cases.</li>
+        <li><b>Une case contient au maximum 2 pions.</b></li>
+        <li><b>En ligne :</b> le serveur lance les dés et vérifie chaque coup. Une place peut être tenue par un humain ou par l’ordinateur. Un chronomètre (30, 60 ou 90 s par décision, au choix de l’hôte) limite chaque décision : s’il est écoulé, l’ordinateur joue à votre place ; après deux dépassements de suite vous passez « inactif » jusqu’à ce que vous repreniez la main. Un joueur absent plus de 20 secondes est aussi remplacé jusqu’à son retour.</li>
+      </ul>
+      <div class="modal-actions"><button id="rules-close" class="primary" type="button">Fermer</button></div>
+    </div>
+  </div>
+
+  <!-- Fin de partie -->
+  <div id="winner" class="overlay" hidden>
+    <div class="modal">
+      <h2 id="winner-title"></h2>
+      <p id="winner-text" class="muted"></p>
+      <ol id="winner-ranking" class="ranking"></ol>
+      <p id="winner-hint" class="muted" hidden>L’hôte peut relancer une partie depuis le salon.</p>
+      <div class="modal-actions">
+        <button id="winner-again" class="primary" type="button">Rejouer</button>
+        <button id="winner-close" class="ghost" type="button">Voir le plateau</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/*
+ * Moteur de règles du Parchís — 4 joueurs, 2 dés.
+ * Aucune dépendance, aucun accès au DOM : fonctionne dans Node et dans le navigateur.
+ *
+ * Vocabulaire
+ *  - "case de l'anneau" : 1..68, numérotation du plateau (sens horaire).
+ *  - "pos" d'un pion, relative à son propriétaire :
+ *      0        maison
+ *      1..64    anneau (1 = case de sortie du joueur, 64 = dernière case avant son couloir)
+ *      65..71   couloir d'arrivée (privé)
+ *      72       but
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.ParchisEngine = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const RING = 68;
+  const RING_END = 64;
+  const GOAL = 72;
+  const COLORS = ['yellow', 'green', 'red', 'blue']; // ordre de jeu = sens de l'anneau (anti-horaire)
+  // Couleurs par défaut des 4 places (la place = le coin du plateau) et palette au choix des joueurs.
+  const PALETTE = ['yellow', 'green', 'red', 'blue', 'purple', 'orange', 'pink', 'teal'];
+  const COLOR_NAMES_FR = { yellow: 'Jaune', blue: 'Bleu', red: 'Rouge', green: 'Vert', purple: 'Violet', orange: 'Orange', pink: 'Rose', teal: 'Turquoise' };
+  /** Vrai si `colors` est une liste de 4 couleurs de la palette, toutes différentes. */
+  function validColors(colors) {
+    return Array.isArray(colors) && colors.length === 4 && colors.every((c) => PALETTE.includes(c)) && new Set(colors).size === 4;
+  }
+  const EXIT_SQUARE = [5, 22, 39, 56];
+  const SAFE = new Set([5, 12, 17, 22, 29, 34, 39, 46, 51, 56, 63, 68]);
+  const BONUS_CAPTURE = 20;
+  const BONUS_GOAL = 10;
+
+  const DEFAULT_CONFIG = {
+    exitOnSum: true, // deux dés dont la somme fait 5 permettent aussi de sortir un pion
+    tripleDoublePenalty: true,
+    fullRanking: true, // la partie continue après le 1er arrivé jusqu'à classer tous les joueurs (false : s'arrête au 1er)
+  };
+
+  /** Case de l'anneau (1..68) occupée par un pion du joueur `player` à la position relative `pos` (1..64). */
+  function ringSquare(player, pos) {
+    return ((EXIT_SQUARE[player] - 1 + pos - 1) % RING) + 1;
+  }
+
+  function createGame(options) {
+    options = options || {};
+    const colors = validColors(options.colors) ? options.colors.slice() : COLORS.slice();
+    const names = options.names || colors.map((c) => COLOR_NAMES_FR[c]);
+    const ai = options.ai || [false, true, true, true];
+    const pieces = [];
+    for (let p = 0; p < 4; p++) {
+      for (let i = 0; i < 4; i++) pieces.push({ id: p * 4 + i, player: p, pos: 0, arrived: 0 });
+    }
+    return {
+      config: Object.assign({}, DEFAULT_CONFIG, options.config || {}),
+      players: colors.map((color, i) => ({ color, name: names[i], ai: !!ai[i], lastMoved: null })),
+      pieces,
+      turn: options.firstPlayer || 0,
+      phase: 'roll', // 'roll' | 'move' | 'over'
+      dice: null,
+      pending: [], // [{id, value, kind: 'die' | 'bonus'}]
+      doubles: 0,
+      rolledDouble: false,
+      winner: null, // 1er arrivé
+      ranking: [], // joueurs dans l'ordre d'arrivée (complété avec le dernier quand la partie se termine)
+      arrivalCounter: 0,
+      pendingCounter: 0,
+    };
+  }
+
+  function clone(state) {
+    return JSON.parse(JSON.stringify(state));
+  }
+
+  /** occ[sq] = liste des pions présents sur la case sq (1..68) de l'anneau. */
+  function occupancy(state) {
+    const occ = [];
+    for (let i = 0; i <= RING; i++) occ.push([]);
+    for (const p of state.pieces) {
+      if (p.pos >= 1 && p.pos <= RING_END) occ[ringSquare(p.player, p.pos)].push(p);
+    }
+    return occ;
+  }
+
+  function isBarrier(list) {
+    return list.length === 2 && list[0].player === list[1].player;
+  }
+
+  /**
+   * Évalue le déplacement d'un pion. Renvoie {to, capture} ou null si illégal.
+   * `isExit` : le pion est à la maison et on utilise un 5 (ou une somme de 5) pour le sortir.
+   */
+  function evalStep(occ, piece, steps, isExit) {
+    const from = piece.pos;
+    if (from === 0) {
+      if (!isExit) return null;
+      const here = occ[EXIT_SQUARE[piece.player]];
+      if (here.length === 2) {
+        const others = here.filter((p) => p.player !== piece.player);
+        if (others.length === 0) return null; // deux pions à moi : case pleine
+        others.sort((a, b) => b.arrived - a.arrived);
+        return { to: 1, capture: others[0].id }; // on mange le dernier arrivé
+      }
+      return { to: 1, capture: null };
+    }
+    if (isExit) return null;
+    const to = from + steps;
+    if (to > GOAL) return null;
+    const last = Math.min(to, RING_END);
+    for (let q = from + 1; q <= last; q++) {
+      if (isBarrier(occ[ringSquare(piece.player, q)])) return null;
+    }
+    let capture = null;
+    if (to <= RING_END) {
+      const sq = ringSquare(piece.player, to);
+      const here = occ[sq];
+      if (here.length >= 2) return null;
+      if (here.length === 1 && here[0].player !== piece.player && !SAFE.has(sq)) capture = here[0].id;
+    }
+    return { to, capture };
+  }
+
+  /** Coups légaux pour le joueur courant. */
+  function legalMoves(state) {
+    if (state.phase !== 'move') return [];
+    const occ = occupancy(state);
+    const me = state.turn;
+    const pend = state.pending;
+    const dice = pend.filter((x) => x.kind === 'die');
+    const options = pend.map((x) => ({ use: [x.id], steps: x.value, bonus: x.kind !== 'die', sum: false }));
+    if (dice.length === 2) {
+      options.push({ use: [dice[0].id, dice[1].id], steps: dice[0].value + dice[1].value, bonus: false, sum: true });
+    }
+    let moves = [];
+    for (const piece of state.pieces) {
+      if (piece.player !== me || piece.pos === GOAL) continue;
+      for (const opt of options) {
+        let isExit = false;
+        if (piece.pos === 0) {
+          if (opt.bonus || opt.steps !== 5) continue;
+          if (opt.sum && !state.config.exitOnSum) continue;
+          isExit = true;
+        }
+        const res = evalStep(occ, piece, opt.steps, isExit);
+        if (!res) continue;
+        moves.push({
+          pieceId: piece.id,
+          use: opt.use,
+          steps: opt.steps,
+          sum: opt.sum,
+          bonus: opt.bonus,
+          exit: isExit,
+          from: piece.pos,
+          to: res.to,
+          capture: res.capture,
+        });
+      }
+    }
+    // 1) Sortir est obligatoire avec un 5 sur un dé.
+    const exits = moves.filter((m) => m.exit && !m.sum && !m.bonus);
+    if (exits.length) return exits;
+    // 2) Un 6 sur un dé oblige à ouvrir une barrière si c'est possible.
+    const hasSix = dice.some((d) => d.value === 6);
+    if (hasSix) {
+      const opening = moves.filter((m) => {
+        if (m.sum || m.bonus || m.steps !== 6) return false;
+        const piece = state.pieces[m.pieceId];
+        return piece.pos >= 1 && piece.pos <= RING_END && isBarrier(occ[ringSquare(piece.player, piece.pos)]);
+      });
+      if (opening.length) return opening;
+    }
+    return moves;
+  }
+
+  function nextTurn(state) {
+    // les joueurs déjà arrivés (classés) sont sautés
+    do { state.turn = (state.turn + 1) % 4; } while (state.ranking.includes(state.turn));
+    state.doubles = 0;
+    state.rolledDouble = false;
+    state.pending = [];
+    state.phase = 'roll';
+  }
+
+  /** Fin d'un lancer : on rejoue si double, sinon joueur suivant. */
+  function finishRoll(state, events) {
+    state.pending = [];
+    if (state.rolledDouble) {
+      state.rolledDouble = false;
+      state.phase = 'roll';
+      events.push({ type: 'extra', player: state.turn });
+    } else {
+      nextTurn(state);
+      events.push({ type: 'turn', player: state.turn });
+    }
+  }
+
+  /** Après un lancer ou un coup : passe en phase 'move' s'il reste un coup, sinon termine le lancer. */
+  function advance(state, events) {
+    if (state.phase === 'over') return;
+    state.phase = 'move';
+    if (legalMoves(state).length === 0) {
+      if (state.pending.length) events.push({ type: 'nomoves', player: state.turn, dice: state.dice });
+      finishRoll(state, events);
+    }
+  }
+
+  /** Lance les dés avec des valeurs imposées (tests, rejouabilité). */
+  function rollDice(state, d1, d2) {
+    if (state.phase !== 'roll') throw new Error('Pas en phase de lancer');
+    const events = [];
+    const me = state.turn;
+    const double = d1 === d2;
+    state.dice = [d1, d2];
+    state.doubles = double ? state.doubles + 1 : 0;
+    events.push({ type: 'roll', player: me, dice: [d1, d2], double });
+    if (double && state.doubles === 3 && state.config.tripleDoublePenalty) {
+      const last = state.players[me].lastMoved;
+      const piece = last === null ? null : state.pieces[last];
+      if (piece && piece.pos >= 1 && piece.pos <= RING_END) {
+        piece.pos = 0;
+        events.push({ type: 'penalty', player: me, pieceId: piece.id });
+      } else {
+        events.push({ type: 'penalty', player: me, pieceId: null });
+      }
+      state.rolledDouble = false;
+      nextTurn(state);
+      events.push({ type: 'turn', player: state.turn });
+      return events;
+    }
+    state.rolledDouble = double;
+    state.pending = [
+      { id: ++state.pendingCounter, value: d1, kind: 'die' },
+      { id: ++state.pendingCounter, value: d2, kind: 'die' },
+    ];
+    advance(state, events);
+    return events;
+  }
+
+  function roll(state, rng) {
+    rng = rng || Math.random;
+    const d = () => 1 + Math.floor(rng() * 6);
+    return rollDice(state, d(), d());
+  }
+
+  function applyMove(state, move) {
+    if (state.phase !== 'move') throw new Error('Pas en phase de déplacement');
+    const legal = legalMoves(state).find(
+      (m) => m.pieceId === move.pieceId && m.to === move.to && m.sum === move.sum && m.use.join() === move.use.join()
+    );
+    if (!legal) throw new Error('Coup illégal');
+    const events = [];
+    const me = state.turn;
+    const piece = state.pieces[legal.pieceId];
+    state.pending = state.pending.filter((x) => !legal.use.includes(x.id));
+    const from = piece.pos;
+    piece.pos = legal.to;
+    piece.arrived = ++state.arrivalCounter;
+    state.players[me].lastMoved = piece.id;
+    events.push({
+      type: legal.exit ? 'exit' : 'move',
+      player: me,
+      pieceId: piece.id,
+      from,
+      to: piece.pos,
+      steps: legal.steps,
+      sum: legal.sum,
+      bonus: legal.bonus,
+    });
+    if (legal.capture !== null) {
+      const victim = state.pieces[legal.capture];
+      victim.pos = 0;
+      state.pending.push({ id: ++state.pendingCounter, value: BONUS_CAPTURE, kind: 'bonus' });
+      events.push({ type: 'capture', player: me, pieceId: piece.id, victimId: victim.id, victimPlayer: victim.player, bonus: BONUS_CAPTURE });
+    }
+    if (piece.pos === GOAL) {
+      state.pending.push({ id: ++state.pendingCounter, value: BONUS_GOAL, kind: 'bonus' });
+      events.push({ type: 'goal', player: me, pieceId: piece.id, bonus: BONUS_GOAL });
+      if (state.pieces.filter((p) => p.player === me).every((p) => p.pos === GOAL)) {
+        state.ranking.push(me);
+        const rank = state.ranking.length;
+        events.push(rank === 1 ? { type: 'win', player: me, rank } : { type: 'finish', player: me, rank });
+        state.pending = [];
+        state.rolledDouble = false;
+        const left = [0, 1, 2, 3].filter((i) => !state.ranking.includes(i));
+        if (!state.config.fullRanking || left.length <= 1) {
+          if (left.length === 1 && state.config.fullRanking) state.ranking.push(left[0]);
+          state.phase = 'over';
+          state.winner = state.ranking[0];
+          events.push({ type: 'over', ranking: state.ranking.slice() });
+          return events;
+        }
+        state.winner = state.ranking[0];
+        nextTurn(state);
+        events.push({ type: 'turn', player: state.turn });
+        return events;
+      }
+    }
+    advance(state, events);
+    return events;
+  }
+
+  function progress(state, player) {
+    return state.pieces.filter((p) => p.player === player).reduce((s, p) => s + p.pos, 0);
+  }
+
+  return {
+    RING, RING_END, GOAL, COLORS, PALETTE, validColors, COLOR_NAMES_FR, EXIT_SQUARE, SAFE, BONUS_CAPTURE, BONUS_GOAL, DEFAULT_CONFIG,
+    ringSquare, createGame, clone, occupancy, isBarrier, legalMoves, rollDice, roll, applyMove, progress,
+  };
+});
+
+</script>
+  <script>
+/*
+ * Géométrie du plateau (disposition classique du Parchís espagnol).
+ *
+ *   - Grille logique 19 x 19 : 4 bras de 3 x 8 cases autour d'un centre 3 x 3, maisons dans les coins.
+ *   - Jaune en bas (maison en bas à droite), Vert à droite (maison en haut à droite), Rouge en haut
+ *     (maison en haut à gauche), Bleu à gauche (maison en bas à gauche).
+ *   - L'anneau est numéroté de 1 à 68 dans le sens ANTI-horaire, en partant de la case 1 (bas du bras du bas,
+ *     colonne de droite) ; l'ordre de jeu suit le même sens : Jaune → Vert → Rouge → Bleu.
+ *   - Les cases d'un bras sont des rectangles allongés (comme sur un vrai plateau) : X() et Y() convertissent
+ *     une coordonnée de grille (éventuellement fractionnaire) en unités SVG, viewBox 760 x 760.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./engine.js'));
+  else root.ParchisBoard = factory(root.ParchisEngine);
+})(typeof self !== 'undefined' ? self : this, function (Engine) {
+  'use strict';
+
+  const GRID = 19;
+  const SIZE = 760; //                       côté du plateau en unités SVG
+  const LANE = 76; //                        largeur d'une voie (3 voies par bras)
+  const STEP = (SIZE - 3 * LANE) / 16; //    longueur d'une case dans un bras (33,25)
+
+  /** Coordonnée de grille (0..19) → unités SVG, identique pour les colonnes (X) et les lignes (Y). */
+  function axis(v) {
+    if (v <= 8) return v * STEP;
+    if (v <= 11) return 8 * STEP + (v - 8) * LANE;
+    return 8 * STEP + 3 * LANE + (v - 11) * STEP;
+  }
+  const X = axis;
+  const Y = axis;
+
+  /** RING_CELLS[sq] = [col, ligne] pour sq = 1..68. */
+  const RING_CELLS = [null];
+  for (let i = 1; i <= 68; i++) {
+    let c;
+    if (i <= 8) c = [10, 19 - i]; //               bras bas, colonne droite, vers le centre
+    else if (i <= 16) c = [11 + (i - 9), 10]; //   bras droit, ligne basse, vers l'extérieur
+    else if (i === 17) c = [18, 9]; //             pointe droite
+    else if (i <= 25) c = [36 - i, 8]; //          bras droit, ligne haute, vers le centre
+    else if (i <= 33) c = [10, 33 - i]; //         bras haut, colonne droite, vers l'extérieur
+    else if (i === 34) c = [9, 0]; //              pointe haute
+    else if (i <= 42) c = [8, i - 35]; //          bras haut, colonne gauche, vers le centre
+    else if (i <= 50) c = [50 - i, 8]; //          bras gauche, ligne haute, vers l'extérieur
+    else if (i === 51) c = [0, 9]; //              pointe gauche
+    else if (i <= 59) c = [i - 52, 10]; //         bras gauche, ligne basse, vers le centre
+    else if (i <= 67) c = [8, i - 49]; //          bras bas, colonne gauche, vers l'extérieur
+    else c = [9, 18]; //                           pointe basse
+    RING_CELLS.push(c);
+  }
+
+  /** CORRIDOR_CELLS[joueur][k] = cellule de la position 65 + k. */
+  const CORRIDOR_CELLS = [
+    [17, 16, 15, 14, 13, 12, 11].map((r) => [9, r]), // jaune : colonne centrale du bras bas
+    [17, 16, 15, 14, 13, 12, 11].map((c) => [c, 9]), // vert : ligne centrale du bras droit
+    [1, 2, 3, 4, 5, 6, 7].map((r) => [9, r]), //        rouge : colonne centrale du bras haut
+    [1, 2, 3, 4, 5, 6, 7].map((c) => [c, 9]), //        bleu : ligne centrale du bras gauche
+  ];
+
+  /** Case d'arrivée (centre) de chaque joueur : la case du centre voisine de son couloir. */
+  const GOAL_CELLS = [[9, 10], [10, 9], [9, 8], [8, 9]];
+
+  /** Zone de maison de chaque joueur : coin (col, ligne) et taille en cases de grille. */
+  const HOME_AREAS = [
+    { col: 11, row: 11, w: 8, h: 8 }, // jaune, bas droite
+    { col: 11, row: 0, w: 8, h: 8 }, //  vert, haut droite
+    { col: 0, row: 0, w: 8, h: 8 }, //   rouge, haut gauche
+    { col: 0, row: 11, w: 8, h: 8 }, //  bleu, bas gauche
+  ];
+
+  /** Centre (en unités SVG) du disque de maison, et emplacements des 4 pions autour. */
+  const HOME_CENTERS = HOME_AREAS.map((a) => ({ x: X(a.col + a.w / 2), y: Y(a.row + a.h / 2) }));
+  const HOME_RADIUS = 104;
+  const SLOT_OFFSET = 40;
+  const HOME_SLOTS = HOME_CENTERS.map((c) => [
+    [c.x - SLOT_OFFSET, c.y - SLOT_OFFSET], [c.x + SLOT_OFFSET, c.y - SLOT_OFFSET],
+    [c.x - SLOT_OFFSET, c.y + SLOT_OFFSET], [c.x + SLOT_OFFSET, c.y + SLOT_OFFSET],
+  ]);
+
+  /** Cellule [col, ligne] d'une position de jeu (hors maison). */
+  function cellOf(player, pos) {
+    if (pos >= 1 && pos <= Engine.RING_END) return RING_CELLS[Engine.ringSquare(player, pos)];
+    if (pos > Engine.RING_END && pos < Engine.GOAL) return CORRIDOR_CELLS[player][pos - 65];
+    if (pos === Engine.GOAL) return GOAL_CELLS[player];
+    return null;
+  }
+
+  /** Rectangle SVG d'une cellule. */
+  function box(cell) {
+    return { x: X(cell[0]), y: Y(cell[1]), w: X(cell[0] + 1) - X(cell[0]), h: Y(cell[1] + 1) - Y(cell[1]) };
+  }
+
+  /** Centre SVG d'une cellule. */
+  function center(cell) {
+    const r = box(cell);
+    return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+  }
+
+  return {
+    GRID, SIZE, LANE, STEP, X, Y, RING_CELLS, CORRIDOR_CELLS, GOAL_CELLS, HOME_AREAS, HOME_CENTERS, HOME_RADIUS,
+    HOME_SLOTS, cellOf, box, center,
+  };
+});
+
+</script>
+  <script>
+/*
+ * IA du Parchís. Heuristique à priorités (inspirée de glparchis/gdparchis) :
+ * manger > rentrer au but > sortir > se mettre à l'abri > éviter les menaces > avancer.
+ * `skill` (0..1) = probabilité de jouer le meilleur coup plutôt qu'un coup au hasard
+ * (0.65 facile, 0.80 normal, 0.95 difficile).
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./engine.js'));
+  else root.ParchisAI = factory(root.ParchisEngine);
+})(typeof self !== 'undefined' ? self : this, function (Engine) {
+  'use strict';
+
+  const SKILL = { easy: 0.65, normal: 0.8, hard: 0.95 };
+
+  /** Nombre d'adversaires qui pourraient tomber sur la case `sq` (portée d'un lancer : 1..12 cases derrière). */
+  function threatsOn(state, sq, me, ignoreId) {
+    let n = 0;
+    for (const p of state.pieces) {
+      if (p.player === me || p.id === ignoreId || p.pos < 1 || p.pos > Engine.RING_END) continue;
+      const d = (sq - Engine.ringSquare(p.player, p.pos) + Engine.RING) % Engine.RING;
+      if (d >= 1 && d <= 12) n++;
+    }
+    return n;
+  }
+
+  function scoreMove(state, move) {
+    const me = state.turn;
+    const piece = state.pieces[move.pieceId];
+    let s = move.steps * 0.5;
+    if (move.capture !== null) {
+      const victim = state.pieces[move.capture];
+      s += 100 + victim.pos;
+    }
+    if (move.to === Engine.GOAL) s += 80;
+    if (move.exit) s += 60;
+    if (move.to > Engine.RING_END) {
+      s += 30; // couloir : à l'abri
+    } else {
+      const sqTo = Engine.ringSquare(me, move.to);
+      if (Engine.SAFE.has(sqTo)) s += 25;
+      else s -= 14 * Math.min(3, threatsOn(state, sqTo, me, piece.id));
+      // former une barrière avec un pion à moi
+      const mine = state.pieces.some((p) => p.player === me && p.id !== piece.id && p.pos === move.to);
+      if (mine) s += 8;
+    }
+    if (move.from >= 1 && move.from <= Engine.RING_END) {
+      const sqFrom = Engine.ringSquare(me, move.from);
+      if (!Engine.SAFE.has(sqFrom)) s += 6 * Math.min(3, threatsOn(state, sqFrom, me, piece.id)); // fuir
+    }
+    return s;
+  }
+
+  function choose(state, moves, skill, rng) {
+    rng = rng || Math.random;
+    if (skill === undefined) skill = SKILL.normal;
+    if (moves.length === 1) return moves[0];
+    if (rng() > skill) return moves[Math.floor(rng() * moves.length)];
+    let best = null;
+    let bestScore = -Infinity;
+    for (const m of moves) {
+      const sc = scoreMove(state, m) + rng() * 0.5;
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = m;
+      }
+    }
+    return best;
+  }
+
+  return { SKILL, choose, scoreMove, threatsOn };
+});
+
+</script>
+  <script>
+/* Sons synthétisés (WebAudio) : aucun fichier audio, tout est généré à la volée. */
+(function (root, factory) {
+  root.ParchisSound = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  let ctx = null;
+  let master = null;
+  let enabled = true;
+  try { enabled = localStorage.getItem('parchis-sound') !== 'off'; } catch (e) { /* stockage indisponible */ }
+
+  /** À appeler depuis un geste de l'utilisateur (clic, touche) : les navigateurs l'exigent. */
+  function unlock() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try {
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0.5;
+      master.connect(ctx.destination);
+    } catch (e) { ctx = null; }
+  }
+
+  function ready() { return enabled && ctx && ctx.state === 'running'; }
+
+  function tone(freq, start, dur, opts) {
+    opts = opts || {};
+    const t0 = ctx.currentTime + start;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = opts.type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    if (opts.to) osc.frequency.exponentialRampToValueAtTime(opts.to, t0 + dur);
+    const vol = opts.vol === undefined ? 0.3 : opts.vol;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(master);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.03);
+  }
+
+  function noise(start, dur, vol, freq) {
+    const t0 = ctx.currentTime + start;
+    const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = freq || 1800;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(filter); filter.connect(g); g.connect(master);
+    src.start(t0);
+  }
+
+  const SOUNDS = {
+    dice() { for (let i = 0; i < 7; i++) noise(i * 0.07, 0.05, 0.5, 1400 + Math.random() * 1600); },
+    land() { tone(520, 0, 0.09, { type: 'triangle', vol: 0.35 }); noise(0, 0.04, 0.15, 900); },
+    step(n) { tone(330 + (n || 0) * 6, 0, 0.05, { type: 'triangle', vol: 0.16 }); },
+    exit() { tone(440, 0, 0.12, { type: 'triangle' }); tone(660, 0.09, 0.18, { type: 'triangle' }); },
+    capture() { tone(420, 0, 0.35, { type: 'sawtooth', to: 90, vol: 0.28 }); noise(0, 0.12, 0.4, 600); },
+    goal() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.22, { type: 'triangle' })); },
+    nomoves() { tone(200, 0, 0.18, { type: 'square', vol: 0.12 }); tone(160, 0.14, 0.22, { type: 'square', vol: 0.12 }); },
+    extra() { tone(600, 0, 0.1, { type: 'sine' }); tone(900, 0.08, 0.14, { type: 'sine' }); },
+    penalty() { tone(300, 0, 0.5, { type: 'sawtooth', to: 70, vol: 0.25 }); },
+    turn() { tone(880, 0, 0.12, { type: 'sine', vol: 0.22 }); tone(1175, 0.1, 0.2, { type: 'sine', vol: 0.22 }); },
+    tick() { tone(1000, 0, 0.05, { type: 'square', vol: 0.1 }); },
+    win() { [523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.14, 0.3, { type: 'triangle', vol: 0.32 })); },
+  };
+
+  function play(name, arg) {
+    if (!ready() || !SOUNDS[name]) return;
+    try { SOUNDS[name](arg); } catch (e) { /* un son raté ne doit jamais casser le jeu */ }
+  }
+
+  function setEnabled(on) {
+    enabled = !!on;
+    try { localStorage.setItem('parchis-sound', enabled ? 'on' : 'off'); } catch (e) { /* ignoré */ }
+    if (enabled) unlock();
+  }
+
+  return { unlock, play, setEnabled, isEnabled: () => enabled };
+});
+
+</script>
+  <script>
+/* Client réseau : API HTTP + flux SSE vers le serveur de parties en ligne (server/server.js). */
+(function (root, factory) {
+  root.ParchisNet = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const SESSION_KEY = 'parchis-session';
+  const SERVER_KEY = 'parchis-server';
+  const handlers = {};
+  let base = '';
+  let session = null; // { code, token, seat, base }
+  let source = null;
+  let unloading = false; // la page se ferme : les erreurs du flux sont alors normales
+  if (typeof window !== 'undefined') window.addEventListener('pagehide', () => { unloading = true; });
+
+  const isHttp = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
+
+  function store(key, value) {
+    try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch (e) { /* ignoré */ }
+  }
+  function load(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  // Serveur : même origine quand la page est servie en http(s), sinon adresse saisie par l'utilisateur.
+  base = isHttp ? '' : (load(SERVER_KEY) || '');
+  try {
+    const raw = load(SESSION_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.code && s.token) { session = s; if (!isHttp) base = s.base || base; }
+    }
+  } catch (e) { session = null; }
+
+  function on(name, fn) { (handlers[name] = handlers[name] || []).push(fn); }
+  function emit(name, data) { (handlers[name] || []).forEach((fn) => { try { fn(data); } catch (e) { console.error(e); } }); }
+
+  function cleanBase(url) {
+    url = String(url || '').trim().replace(/\/+$/, '');
+    if (url && !/^https?:\/\//i.test(url)) url = 'http://' + url;
+    return url;
+  }
+  function setBase(url) {
+    base = isHttp ? '' : cleanBase(url);
+    if (!isHttp) store(SERVER_KEY, base || null);
+  }
+
+  async function api(method, path, body) {
+    let res;
+    // Un hébergement gratuit s'endort après quelques minutes sans visite : la 1re requête peut durer jusqu'à ~1 minute.
+    let slow = setTimeout(() => { slow = null; emit('wake', true); }, 3000);
+    try {
+      res = await fetch(base + path, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    } catch (e) {
+      throw new Error('Serveur injoignable.');
+    } finally {
+      if (slow) clearTimeout(slow); else emit('wake', false);
+    }
+    let data = {};
+    try { data = await res.json(); } catch (e) { /* corps vide */ }
+    if (!res.ok) {
+      const err = new Error(data.error || 'Erreur ' + res.status);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function saveSession(s) {
+    session = s ? Object.assign({ base }, s) : null;
+    store(SESSION_KEY, session ? JSON.stringify(session) : null);
+  }
+
+  function disconnect() {
+    if (source) { source.close(); source = null; }
+  }
+
+  function connect() {
+    if (!session) return;
+    disconnect();
+    const es = new EventSource(`${base}/api/rooms/${session.code}/events?token=${encodeURIComponent(session.token)}`);
+    source = es;
+    es.onopen = () => emit('status', 'open');
+    es.onerror = () => {
+      if (source !== es || unloading) return;
+      emit('status', 'reconnecting');
+      if (es.readyState !== 2) return; // le navigateur se reconnecte tout seul
+      // CLOSED : le serveur a refusé, ou la connexion a été coupée. On interroge le serveur pour savoir lequel.
+      const s = session;
+      es.close();
+      const probe = () => {
+        if (!session || session !== s || unloading) return;
+        api('GET', `/api/rooms/${s.code}?token=${encodeURIComponent(s.token)}`).then(
+          () => { if (session === s) connect(); },
+          (err) => {
+            if (err.status === 403 || err.status === 404) { disconnect(); saveSession(null); emit('closed'); }
+            else setTimeout(probe, 2000); // serveur injoignable : on réessaie
+          }
+        );
+      };
+      probe();
+    };
+    const parse = (name) => es.addEventListener(name, (ev) => {
+      let data;
+      try { data = JSON.parse(ev.data); } catch (e) { return; }
+      if (name === 'room' && session && typeof data.you === 'number') session.seat = data.you;
+      emit(name, data);
+    });
+    parse('room');
+    parse('snapshot');
+    parse('step');
+    parse('timer');
+  }
+
+  const post = (action, body) => api('POST', `/api/rooms/${session.code}/${action}`, Object.assign({ token: session.token }, body));
+
+  async function create(name) {
+    const r = await api('POST', '/api/rooms', { name });
+    saveSession({ code: r.code, token: r.token, seat: r.seat });
+    connect();
+    return r;
+  }
+  async function join(code, name) {
+    code = String(code || '').trim().toUpperCase();
+    const r = await api('POST', `/api/rooms/${code}/join`, { name });
+    saveSession({ code: r.code, token: r.token, seat: r.seat });
+    connect();
+    return r;
+  }
+  async function leave() {
+    const s = session;
+    disconnect();
+    saveSession(null);
+    emit('left');
+    if (s) { try { await api('POST', `/api/rooms/${s.code}/leave`, { token: s.token }); } catch (e) { /* déjà parti */ } }
+  }
+
+  return {
+    on, setBase, connect, disconnect, create, join, leave,
+    available: () => isHttp || !!base,
+    isHttp,
+    getBase: () => base,
+    hasSession: () => !!session,
+    code: () => (session ? session.code : null),
+    configure: (seats, difficulty, turnSeconds) => post('configure', { seats, difficulty, turnSeconds }),
+    resume: () => post('action', { type: 'resume' }),
+    setColor: (seat, color) => post('color', { seat, color }),
+    start: () => post('start'),
+    backToLobby: () => post('lobby'),
+    kick: (seat) => post('kick', { seat }),
+    roll: () => post('action', { type: 'roll' }),
+    move: (m) => post('action', { type: 'move', move: { pieceId: m.pieceId, to: m.to, sum: !!m.sum, use: m.use } }),
+  };
+});
+
+</script>
+  <script>
+/* Interface du Parchís : plateau SVG, dés, tour des joueurs, IA, journal. */
+(function () {
+  'use strict';
+  const E = window.ParchisEngine;
+  const B = window.ParchisBoard;
+  const AI = window.ParchisAI;
+  const Sound = window.ParchisSound;
+  const Net = window.ParchisNet;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const COLOR = { yellow: '#f2c800', blue: '#2a86d4', red: '#d92b2f', green: '#2e9d44', purple: '#8b4fc4', orange: '#f08a1c', pink: '#e4579c', teal: '#17a398' };
+  const LIGHT = { yellow: '#f4e58a', blue: '#a9cdee', red: '#eba5a8', green: '#a5d5ae', purple: '#d3b9ec', orange: '#f8d3a0', pink: '#f6c3dc', teal: '#a8ded9' };
+  function mix(a, b, t) { // mélange de deux couleurs #rrggbb
+    const n = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const A = n(a), Bb = n(b);
+    return '#' + A.map((v, i) => Math.round(v + (Bb[i] - v) * t).toString(16).padStart(2, '0')).join('');
+  }
+  const PAWN = { yellow: '#f0c20f', blue: '#2c6fd0', red: '#d8211f', green: '#2d9a30', purple: '#7b3fb8', orange: '#ee7f12', pink: '#de468d', teal: '#139087' }; // peinture des pions
+  const DARK = { yellow: '#a98600', blue: '#1b5a94', red: '#8f1c20', green: '#1b6633', purple: '#55287f', orange: '#a35a00', pink: '#9a2a63', teal: '#0d655d' };
+  const CORNER = ['bas droite', 'haut droite', 'haut gauche', 'bas gauche']; // coin du plateau de chaque place
+  /** Couleur (clé de palette) de la place i : celle choisie pour la partie en cours, sinon celle par défaut. */
+  const seatColor = (i) => (game && game.players[i] ? game.players[i].color : E.COLORS[i]);
+  let drawnColors = '';
+  const narrow = window.matchMedia ? window.matchMedia('(max-width: 860px)') : { matches: false }; // téléphone : pions plus grands
+  if (narrow.addEventListener) narrow.addEventListener('change', () => { if (game) renderPieces(); });
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs || {}) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+
+  const svg = $('board');
+  const layers = {};
+  const pieceEls = [];
+
+  let game = null;
+  let settings = loadSettings();
+  let timer = null;
+  let selectedPiece = null;
+  let lastRoll = null; // {player, dice}
+  let rolling = false;
+  let winnerShown = false;
+  let mode = 'local'; // 'local' | 'online'
+  let room = null; // infos du salon (mode en ligne)
+  let mySeat = -1;
+  let disp = null; // positions affichées pendant une animation (null = positions réelles)
+  let busy = false; // une séquence d'animation est en cours
+  let awaiting = false; // requête en ligne envoyée, réponse du serveur attendue
+  let gen = 0; // change quand une séquence doit être abandonnée
+  let inbox = []; // coups reçus du serveur en attente d'être animés
+  let lastSeq = -1;
+  let timerState = null; // chronomètre en ligne : { seat, end (Date.now), total }
+  let lastTickSecs = null;
+
+  // ---------- Paramètres ----------
+  function loadSettings() {
+    const def = { names: E.COLORS.map((c) => E.COLOR_NAMES_FR[c]), colors: E.COLORS.slice(), ai: [false, true, true, true], difficulty: 'normal' };
+    try {
+      const raw = localStorage.getItem('parchis-setup-2');
+      if (raw) {
+        const st = Object.assign(def, JSON.parse(raw));
+        if (!E.validColors(st.colors)) st.colors = E.COLORS.slice();
+        return st;
+      }
+    } catch (e) { /* stockage indisponible */ }
+    return def;
+  }
+  function saveSettings() {
+    try { localStorage.setItem('parchis-setup-2', JSON.stringify(settings)); } catch (e) { /* ignoré */ }
+  }
+
+  // ---------- Dessin du plateau ----------
+  function starPoints(cx, cy, outer, inner, n) {
+    const pts = [];
+    for (let i = 0; i < n * 2; i++) {
+      const r = i % 2 === 0 ? outer : inner;
+      const a = (Math.PI * i) / n - Math.PI / 2;
+      pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return pts.join(' ');
+  }
+
+  function drawBoard() {
+    drawnColors = [0, 1, 2, 3].map(seatColor).join();
+    svg.innerHTML = '';
+    const SZ = B.SIZE;
+    const defs = el('defs', {}, svg);
+    E.PALETTE.forEach((c) => {
+      const g = el('radialGradient', { id: 'grad-' + c, cx: '50%', cy: '50%', r: '50%' }, defs);
+      el('stop', { offset: '0%', 'stop-color': '#ffffff' }, g);
+      el('stop', { offset: '45%', 'stop-color': LIGHT[c] }, g);
+      el('stop', { offset: '100%', 'stop-color': COLOR[c] }, g);
+    });
+    // dégradés des pions en bois peint (satiné, peu brillant) : tête (radial) et corps (horizontal)
+    E.PALETTE.forEach((c) => {
+      const h = el('radialGradient', { id: 'ph-' + c, cx: '38%', cy: '32%', r: '78%' }, defs);
+      el('stop', { offset: '0%', 'stop-color': mix(PAWN[c], '#ffffff', 0.28) }, h);
+      el('stop', { offset: '50%', 'stop-color': PAWN[c] }, h);
+      el('stop', { offset: '100%', 'stop-color': mix(PAWN[c], '#000000', 0.32) }, h);
+      const b = el('linearGradient', { id: 'pb-' + c, x1: '0', y1: '0', x2: '1', y2: '0' }, defs);
+      el('stop', { offset: '0%', 'stop-color': mix(PAWN[c], '#000000', 0.35) }, b);
+      el('stop', { offset: '32%', 'stop-color': mix(PAWN[c], '#ffffff', 0.18) }, b);
+      el('stop', { offset: '60%', 'stop-color': PAWN[c] }, b);
+      el('stop', { offset: '100%', 'stop-color': mix(PAWN[c], '#000000', 0.4) }, b);
+    });
+    el('rect', { x: 0, y: 0, width: SZ, height: SZ, rx: 8, fill: '#ffffff' }, svg);
+    const base = el('g', {}, svg);
+
+    // maisons : coin teinté, grand disque avec étoile, emplacements des pions
+    [0, 1, 2, 3].forEach((p) => {
+      const c = seatColor(p);
+      const a = B.HOME_AREAS[p];
+      const ctr = B.HOME_CENTERS[p];
+      el('rect', { x: B.X(a.col), y: B.Y(a.row), width: B.X(a.col + a.w) - B.X(a.col), height: B.Y(a.row + a.h) - B.Y(a.row), fill: LIGHT[c] }, base);
+      el('circle', { cx: ctr.x, cy: ctr.y, r: B.HOME_RADIUS, fill: `url(#grad-${c})`, stroke: DARK[c], 'stroke-width': 3 }, base);
+      const oct = [];
+      for (let i = 0; i < 8; i++) {
+        const ang = (Math.PI / 4) * i + Math.PI / 8;
+        oct.push(`${(ctr.x + (B.HOME_RADIUS - 12) * Math.cos(ang)).toFixed(1)},${(ctr.y + (B.HOME_RADIUS - 12) * Math.sin(ang)).toFixed(1)}`);
+      }
+      el('polygon', { points: oct.join(' '), fill: 'none', stroke: DARK[c], 'stroke-width': 2, opacity: 0.7 }, base);
+      el('polygon', { points: starPoints(ctr.x, ctr.y, 62, 24, 8), fill: '#fff', opacity: 0.55 }, base);
+    });
+
+    // couloirs d'arrivée
+    [0, 1, 2, 3].forEach((p) => {
+      const c = seatColor(p);
+      B.CORRIDOR_CELLS[p].forEach((cell) => {
+        const r = B.box(cell);
+        el('rect', { x: r.x, y: r.y, width: r.w, height: r.h, fill: COLOR[c], stroke: 'rgba(0,0,0,.35)', 'stroke-width': 1 }, base);
+      });
+    });
+
+    // anneau : cases blanches, cases sûres cerclées, cases de sortie colorées
+    for (let sq = 1; sq <= 68; sq++) {
+      const cell = B.RING_CELLS[sq];
+      const r = B.box(cell);
+      const exitOwner = E.EXIT_SQUARE.indexOf(sq);
+      el('rect', { x: r.x, y: r.y, width: r.w, height: r.h, fill: exitOwner >= 0 ? COLOR[seatColor(exitOwner)] : '#ffffff', stroke: '#555', 'stroke-width': 1 }, base);
+      if (E.SAFE.has(sq)) {
+        el('circle', { cx: r.x + r.w / 2, cy: r.y + r.h / 2, r: Math.min(r.w, r.h) / 2 - 4, fill: '#ffffff', stroke: '#444', 'stroke-width': 1.5 }, base);
+      }
+    }
+
+    // centre : quatre flèches pointées vers le but
+    const c0 = B.X(8), c1 = B.X(11), m = B.SIZE / 2;
+    const tri = (pts, color) => el('polygon', { points: pts, fill: COLOR[color], stroke: '#2b2a27', 'stroke-width': 1.2 }, base);
+    tri(`${c0},${c1} ${c1},${c1} ${m},${m}`, seatColor(0)); //  bas
+    tri(`${c0},${c0} ${c0},${c1} ${m},${m}`, seatColor(3)); //    gauche
+    tri(`${c0},${c0} ${c1},${c0} ${m},${m}`, seatColor(2)); //     haut
+    tri(`${c1},${c0} ${c1},${c1} ${m},${m}`, seatColor(1)); //   droite
+
+    // numéros de cases (affichage optionnel) ; ceux du bras haut sont tête en bas, comme sur le plateau imprimé
+    const nums = el('g', { id: 'nums', display: 'none' }, svg);
+    for (let sq = 1; sq <= 68; sq++) {
+      const cell = B.RING_CELLS[sq];
+      const ctr = B.center(cell);
+      const upsideDown = cell[1] <= 7 && cell[0] >= 8 && cell[0] <= 10;
+      const t = el('text', { x: ctr.x, y: ctr.y, class: 'cell-num', 'font-weight': 'bold', transform: upsideDown ? `rotate(180 ${ctr.x} ${ctr.y})` : '' }, nums);
+      t.textContent = sq;
+    }
+
+    layers.markers = el('g', {}, svg);
+    layers.pieces = el('g', {}, svg);
+    layers.markers2 = el('g', {}, svg);
+
+    // pions
+    pieceEls.length = 0;
+    for (let id = 0; id < 16; id++) {
+      const color = seatColor(Math.floor(id / 4));
+      const g = el('g', { class: 'piece', 'data-id': id }, layers.pieces);
+      el('ellipse', { class: 'halo', cx: 0, cy: -3, rx: 18, ry: 22 }, g);
+      el('ellipse', { class: 'hit', cx: 0, cy: -2, rx: 24, ry: 28 }, g); // cible tactile agrandie (invisible)
+      el('ellipse', { cx: 1, cy: 14.5, rx: 15, ry: 4.5, fill: 'rgba(0,0,0,.26)' }, g); // ombre portée
+      const pawn = el('g', { class: 'pawn' }, g);
+      const edge = mix(PAWN[color], '#000000', 0.45);
+      // pion de bois peint : base plate, corps qui s'évase en courbe creuse, cou fin, tête ronde
+      el('path', { class: 'body', d: 'M-14.5 12.5 C-14.5 10.5 -8.5 10 -5.2 3 C-4 -0.5 -3.6 -3 -3.6 -6 L3.6 -6 C3.6 -3 4 -0.5 5.2 3 C8.5 10 14.5 10.5 14.5 12.5 C14.5 16.8 -14.5 16.8 -14.5 12.5 Z',
+        fill: `url(#pb-${color})`, stroke: edge }, pawn);
+      el('ellipse', { cx: 0, cy: 12.6, rx: 13.8, ry: 3.2, fill: mix(PAWN[color], '#ffffff', 0.12), opacity: 0.9 }, pawn);
+      el('circle', { class: 'body', cx: 0, cy: -13.5, r: 9.6, fill: `url(#ph-${color})`, stroke: edge }, pawn);
+      el('ellipse', { cx: -3.4, cy: -17.2, rx: 3.2, ry: 2.1, fill: '#fff', opacity: 0.45, transform: 'rotate(-35 -3.4 -17.2)' }, pawn);
+      el('path', { d: 'M-8.6 10.5 C-6.6 8.5 -4.4 5 -3.6 -1', fill: 'none', stroke: '#fff', 'stroke-width': 1.4, 'stroke-linecap': 'round', opacity: 0.3 }, pawn);
+      g.addEventListener('click', () => onPieceClick(id));
+      pieceEls.push(g);
+    }
+    $('nums').setAttribute('display', $('opt-numbers').checked ? 'block' : 'none');
+  }
+
+  svg.addEventListener('click', (e) => {
+    if (game && (e.target === svg || e.target.tagName === 'rect')) { selectedPiece = null; renderMarkers(); renderPieces(); renderPanel(); }
+  });
+
+  // ---------- Rendu des pions ----------
+  function pieceCenter(piece, indexInCell, countInCell) {
+    if (piece.pos === 0) {
+      const s = B.HOME_SLOTS[piece.player][piece.id % 4];
+      return { x: s[0], y: s[1], k: 1.3 };
+    }
+    const cell = B.cellOf(piece.player, piece.pos);
+    const r = B.box(cell);
+    let x = r.x + r.w / 2;
+    let y = r.y + r.h / 2;
+    let k = 1;
+    if (countInCell === 2) { // on décale selon la plus grande dimension de la case
+      const d = indexInCell === 0 ? -0.22 : 0.22;
+      if (r.w >= r.h) x += d * r.w; else y += d * r.h;
+      k = 1.0;
+    } else if (countInCell >= 3) {
+      x += (indexInCell % 2 === 0 ? -0.25 : 0.25) * r.w;
+      y += (indexInCell < 2 ? -0.25 : 0.25) * r.h;
+      k = 0.5;
+    }
+    return { x, y, k: k * (narrow.matches ? 1.3 : 1.12) };
+  }
+
+  function renderPieces() {
+    const view = game.pieces.map((p) => ({ id: p.id, player: p.player, pos: disp ? disp[p.id] : p.pos }));
+    const groups = {};
+    for (const p of view) {
+      if (p.pos === 0) continue;
+      const key = B.cellOf(p.player, p.pos).join(',');
+      (groups[key] = groups[key] || []).push(p);
+    }
+    const movable = !busy && !awaiting && humanTurn() && game.phase === 'move' ? new Set(E.legalMoves(game).map((m) => m.pieceId)) : new Set();
+    for (const p of view) {
+      let idx = 0, cnt = 1;
+      if (p.pos !== 0) {
+        const list = groups[B.cellOf(p.player, p.pos).join(',')];
+        idx = list.indexOf(p);
+        cnt = list.length;
+      }
+      const c = pieceCenter(p, idx, cnt);
+      const g = pieceEls[p.id];
+      g.style.transform = `translate(${c.x}px, ${c.y}px) scale(${c.k})`;
+      g.classList.toggle('movable', movable.has(p.id));
+      g.classList.toggle('selected', selectedPiece === p.id);
+    }
+  }
+
+  function markerCell(move) {
+    const piece = game.pieces[move.pieceId];
+    return B.cellOf(piece.player, move.to);
+  }
+  function moveLabel(move) {
+    if (move.sum) {
+      const vals = move.use.map((id) => game.pending.find((x) => x.id === id).value);
+      return vals.join('+');
+    }
+    return (move.bonus ? '+' : '') + move.steps;
+  }
+
+  function renderMarkers() {
+    layers.markers2.innerHTML = '';
+    if (selectedPiece === null || busy || awaiting || !humanTurn() || game.phase !== 'move') return;
+    const seen = new Set();
+    for (const m of E.legalMoves(game).filter((x) => x.pieceId === selectedPiece)) {
+      const key = m.to + '|' + m.sum;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const cell = markerCell(m);
+      const g = el('g', { class: 'marker' }, layers.markers2);
+      const ctr = B.center(cell);
+      el('circle', { class: 'hit', cx: ctr.x, cy: ctr.y, r: 28 }, g); // cible tactile agrandie (invisible)
+      el('circle', { class: 'face', cx: ctr.x, cy: ctr.y, r: 15 }, g);
+      const t = el('text', { x: ctr.x, y: ctr.y + 1 }, g);
+      t.textContent = moveLabel(m);
+      g.addEventListener('click', (e) => { e.stopPropagation(); playMove(m); });
+    }
+  }
+
+  // ---------- Panneau ----------
+  // ---------- Dés 3D (cubes CSS, sans dépendance) ----------
+  // Rotation du cube (en degrés, axes X/Y/Z) qui amène la face n devant l'écran.
+  // Faces opposées : 1-6, 2-5, 3-4.
+  const FACE_ANGLES = { 1: [0, 0], 6: [0, 180], 3: [0, -90], 4: [0, 90], 2: [-90, 0], 5: [90, 0] };
+  const FACE_CLASS = { 1: 'f1', 6: 'f6', 3: 'f3', 4: 'f4', 2: 'f2', 5: 'f5' };
+  const DICE_TOSS_MS = 750;
+  const dice3d = [null, null]; // { el, cube, a, b, c, value }
+
+  function buildDice() {
+    ['die-1', 'die-2'].forEach((id, k) => {
+      const el = $(id);
+      el.innerHTML = '';
+      const cube = document.createElement('div');
+      cube.className = 'cube';
+      for (let n = 1; n <= 6; n++) {
+        const f = document.createElement('div');
+        f.className = 'face ' + FACE_CLASS[n];
+        let h = '';
+        for (let i = 0; i < 9; i++) h += PIPS[n].includes(i) ? '<i></i>' : '<span></span>';
+        f.innerHTML = h;
+        cube.appendChild(f);
+      }
+      el.appendChild(cube);
+      dice3d[k] = { el, cube, a: 0, b: 0, c: 0, yaw: k ? -18 : 22, value: 0 };
+      setCube(dice3d[k], 1, false);
+      dice3d[k].value = 0;
+    });
+  }
+
+  function cubeTransform(d) {
+    // la face du résultat (placée face à l'écran par rotateX/Y/Z) est la face du DESSUS : le dé « repose sur la table »,
+    // tourné d'un angle de lacet fixe, et on le regarde d'en haut (inclinaison de 42°)
+    return `rotateX(42deg) rotateZ(${d.yaw}deg) rotateX(${d.a}deg) rotateY(${d.b}deg) rotateZ(${d.c}deg)`;
+  }
+
+  // Pose le cube sur la face n ; avec `toss`, le fait culbuter (plusieurs tours) avant de s'y arrêter.
+  function setCube(d, n, toss) {
+    const [fa, fb] = FACE_ANGLES[n];
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (toss && !reduce) {
+      // angles cumulés : les tours supplémentaires sont des multiples de 360°, la face finale reste exacte
+      const turns = (cur, target, extra) => target + 360 * (Math.ceil((cur - target) / 360) + extra);
+      const r = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+      d.a = turns(d.a, fa, r(1, 3));
+      d.b = turns(d.b, fb, r(1, 3));
+      d.c = turns(d.c, 0, r(0, 1));
+      d.cube.style.transition = `transform ${DICE_TOSS_MS}ms cubic-bezier(.15,.6,.25,1)`;
+    } else {
+      d.a = fa; d.b = fb; d.c = 0;
+      d.cube.style.transition = 'none';
+    }
+    d.cube.style.transform = cubeTransform(d);
+    d.value = n;
+  }
+
+  function tossDice(values) {
+    values.forEach((v, k) => {
+      const d = dice3d[k];
+      d.el.classList.remove('tossing');
+      void d.el.offsetWidth; // relance l'animation de lancer
+      d.el.classList.add('tossing');
+      d.el.style.animationDelay = k ? '60ms' : '0ms';
+      setCube(d, v, true);
+    });
+    setTimeout(() => dice3d.forEach((d) => { d.el.classList.remove('tossing'); }), DICE_TOSS_MS);
+  }
+
+  function showDice(values) {
+    values.forEach((v, k) => {
+      const d = dice3d[k];
+      if (v && d.value !== v) setCube(d, v, false);
+      d.el.setAttribute('aria-label', `Dé ${k + 1}${v ? ' : ' + v : ''}`);
+    });
+  }
+
+  function seatLabel(i) {
+    if (mode === 'online' && room && room.seats[i]) {
+      const s = room.seats[i];
+      if (i === mySeat) return 'vous';
+      if (s.kind === 'ai') return 'ordinateur';
+      return s.away ? 'absent — ordinateur' : 'humain';
+    }
+    return game.players[i].ai ? 'ordinateur' : 'humain';
+  }
+
+  function renderPanel() {
+    const ul = $('players');
+    ul.innerHTML = '';
+    game.players.forEach((pl, i) => {
+      const done = game.pieces.filter((p) => p.player === i && p.pos === E.GOAL).length;
+      const li = document.createElement('li');
+      const rk = game.ranking.indexOf(i); // -1 : encore en jeu
+      li.className = (game.turn === i && game.phase !== 'over' ? 'active' : '') + (rk >= 0 ? ' finished' : '');
+      li.innerHTML = `<span class="dot" style="background:${COLOR[pl.color]}"></span>` +
+        `<span class="who">${escapeHtml(pl.name)}<small>${seatLabel(i)}</small></span>` +
+        (rk >= 0 ? `<span class="rank" title="Classement : ${rankLabel(rk + 1)}">${MEDAL[rk]}</span>`
+          : `<span class="score" title="Pions arrivés">${'●'.repeat(done)}${'○'.repeat(4 - done)}</span>`);
+      ul.appendChild(li);
+    });
+
+    // dés
+    const cur = game.players[game.turn];
+    const d1 = $('die-1'), d2 = $('die-2');
+    d1.className = 'die' + (rolling ? ' tossing' : ' settled');
+    d2.className = 'die' + (rolling ? ' tossing' : ' settled');
+    if (lastRoll && !rolling) {
+      showDice(lastRoll.dice);
+      const live = game.phase === 'move' && lastRoll.player === game.turn && !busy;
+      if (live) {
+        const left = game.pending.filter((x) => x.kind === 'die').map((x) => x.value);
+        const used = [false, false];
+        for (let i = 0; i < 2; i++) {
+          const k = left.indexOf(lastRoll.dice[i]);
+          if (k >= 0) left.splice(k, 1); else used[i] = true;
+        }
+        d1.classList.toggle('used', used[0]);
+        d2.classList.toggle('used', used[1]);
+      } else if (!busy) {
+        d1.classList.add('used');
+        d2.classList.add('used');
+      }
+    } else if (!rolling) {
+      d1.classList.add('empty'); d2.classList.add('empty');
+    }
+
+    // à jouer
+    const pend = $('pending');
+    pend.innerHTML = '';
+    if (game.phase === 'move' && !busy) {
+      const dice = game.pending.filter((x) => x.kind === 'die');
+      dice.forEach((d) => addChip(pend, d.value, ''));
+      if (dice.length === 2) addChip(pend, `${dice[0].value}+${dice[1].value} = ${dice[0].value + dice[1].value}`, 'sum');
+      game.pending.filter((x) => x.kind === 'bonus').forEach((b) => addChip(pend, '+' + b.value, 'bonus'));
+    }
+
+    // libellés
+    const mine = humanTurn() && mode === 'online';
+    if (game.phase === 'over') {
+      $('turn-label').textContent = `${game.players[game.winner].name} a gagné !`;
+      $('turn-label').style.color = DARK[game.players[game.winner].color];
+    } else {
+      $('turn-label').textContent = mine ? 'À vous de jouer !' : `Tour : ${cur.name}`;
+      $('turn-label').style.color = DARK[cur.color];
+    }
+    document.title = mine && !busy ? '● À vous de jouer — Parchís' : 'Parchís — 4 joueurs, 2 dés';
+    const idle = mode === 'online' && room && mySeat >= 0 && room.seats[mySeat] && room.seats[mySeat].idle;
+    $('resume').hidden = !idle;
+    const human = humanTurn();
+    $('btn-roll').disabled = !(human && game.phase === 'roll' && !rolling && !busy && !awaiting);
+    $('btn-roll').hidden = game.phase === 'over';
+    let hint = '';
+    if (game.phase === 'over') hint = '';
+    else if (!human) hint = (mode === 'online' && !isAiTurn()) ? `En attente de ${cur.name}…` : `${cur.name} réfléchit…`;
+    else if (game.phase === 'roll') hint = 'Lancez les deux dés.';
+    else if (selectedPiece === null) hint = 'Cliquez sur un pion qui brille pour le déplacer.';
+    else hint = 'Cliquez sur une destination en pointillés (ou sur un autre pion).';
+    $('hint').textContent = hint;
+  }
+
+  function isAiTurn() {
+    if (mode === 'online') {
+      const s = room && room.seats[game.turn];
+      return !!s && (s.kind === 'ai' || s.away);
+    }
+    return game.players[game.turn].ai;
+  }
+
+  function addChip(parent, text, cls) {
+    const s = document.createElement('span');
+    s.className = 'chip ' + cls;
+    s.textContent = text;
+    parent.appendChild(s);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function render() {
+    if (game && [0, 1, 2, 3].map(seatColor).join() !== drawnColors) drawBoard();
+    renderPieces();
+    renderMarkers();
+    renderPanel();
+  }
+
+  // ---------- Classement ----------
+  const MEDAL = ['🥇', '🥈', '🥉', '4e'];
+  const rankLabel = (r) => (r === 1 ? '1er' : r + 'e');
+
+  // ---------- Journal ----------
+  function log(player, text) {
+    const li = document.createElement('li');
+    li.style.borderLeft = `4px solid ${COLOR[game.players[player].color]}`;
+    li.textContent = text;
+    const ol = $('log');
+    ol.insertBefore(li, ol.firstChild);
+    while (ol.children.length > 80) ol.removeChild(ol.lastChild);
+  }
+
+  function logEvent(ev) {
+    const name = game.players[ev.player].name;
+    switch (ev.type) {
+      case 'roll': log(ev.player, `${name} lance ${ev.dice[0]} et ${ev.dice[1]}${ev.double ? ' — double !' : ''}`); break;
+      case 'exit': log(ev.player, `${name} sort un pion.`); break;
+      case 'move': log(ev.player, `${name} avance un pion de ${ev.steps}${ev.bonus ? ' (bonus)' : ''}.`); break;
+      case 'capture':
+        log(ev.player, `${name} mange un pion ${E.COLOR_NAMES_FR[game.players[ev.victimPlayer].color].toLowerCase()} ! +${ev.bonus} à jouer.`);
+        break;
+      case 'goal': log(ev.player, `${name} met un pion au but ! +${ev.bonus} à jouer.`); break;
+      case 'nomoves': log(ev.player, `${name} ne peut pas jouer.`); break;
+      case 'penalty':
+        log(ev.player, ev.pieceId === null ? `Trois doubles : pas de pénalité pour ${name}.` : `Trois doubles : un pion de ${name} retourne à la maison.`);
+        break;
+      case 'extra': log(ev.player, `${name} rejoue (double).`); break;
+      case 'timeout': log(ev.player, `${name} : temps écoulé, l’ordinateur joue à sa place.`); break;
+      case 'win': log(ev.player, `${name} arrive 1er : tous ses pions sont au but !`); break;
+      case 'finish': log(ev.player, `${name} arrive ${rankLabel(ev.rank)} !`); break;
+      default: break;
+    }
+  }
+
+  // ---------- Animation ----------
+  function positions() { return game.pieces.map((p) => p.pos); }
+
+  /** Programme `fn` dans `ms`, sauf si la séquence a été abandonnée entre-temps. */
+  function later(ms, fn) {
+    const g = gen;
+    setTimeout(() => { if (g === gen) fn(); }, ms);
+  }
+
+  /**
+   * Joue visuellement `events` à partir des positions `before`.
+   * Le moteur (ou le serveur) a déjà appliqué le coup : `game` est l'état final,
+   * seuls les pions affichés (`disp`) avancent case par case.
+   */
+  function present(before, events, done) {
+    busy = true;
+    disp = before.slice();
+    selectedPiece = null;
+    render();
+    const queue = events.slice();
+    const next = () => {
+      const ev = queue.shift();
+      if (!ev) { disp = null; busy = false; if (done) done(); return; }
+      playEvent(ev, next);
+    };
+    next();
+  }
+
+  function playEvent(ev, next) {
+    switch (ev.type) {
+      case 'roll':
+        rolling = true;
+        renderPanel();
+        tossDice(ev.dice);
+        Sound.play('dice');
+        later(DICE_TOSS_MS + 50, () => {
+          rolling = false;
+          lastRoll = { player: ev.player, dice: ev.dice };
+          logEvent(ev);
+          renderPanel();
+          later(200, next);
+        });
+        break;
+      case 'exit':
+        logEvent(ev);
+        disp[ev.pieceId] = ev.to;
+        renderPieces();
+        Sound.play('exit');
+        later(350, next);
+        break;
+      case 'move':
+        logEvent(ev);
+        walk(ev, next);
+        break;
+      case 'capture':
+        logEvent(ev);
+        disp[ev.victimId] = 0;
+        renderPieces();
+        Sound.play('capture');
+        later(450, next);
+        break;
+      case 'goal':
+        logEvent(ev);
+        Sound.play('goal');
+        later(400, next);
+        break;
+      case 'penalty':
+        logEvent(ev);
+        if (ev.pieceId !== null) { disp[ev.pieceId] = 0; renderPieces(); }
+        Sound.play('penalty');
+        later(900, next);
+        break;
+      case 'nomoves':
+        logEvent(ev);
+        Sound.play('nomoves');
+        later(1200, next);
+        break;
+      case 'extra':
+        logEvent(ev);
+        Sound.play('extra');
+        later(300, next);
+        break;
+      case 'timeout':
+        logEvent(ev);
+        Sound.play('nomoves');
+        if (mode === 'online' && ev.player === mySeat) toast('Temps écoulé : l’ordinateur a joué à votre place.');
+        later(300, next);
+        break;
+      case 'turn':
+        if (mode === 'online' && ev.player === mySeat) Sound.play('turn');
+        next();
+        break;
+      case 'win':
+      case 'finish': {
+        logEvent(ev);
+        Sound.play(ev.type === 'win' ? 'win' : 'goal');
+        const who = game.players[ev.player].name;
+        if (!(game.phase === 'over' && ev.rank >= 3)) toast(ev.rank === 1 ? `${who} arrive 1er ! La partie continue pour les places suivantes.` : `${who} arrive ${rankLabel(ev.rank)} !`);
+        later(700, next);
+        break;
+      }
+      default:
+        next();
+    }
+  }
+
+  /** Fait avancer un pion case par case (rythme adapté à la distance, 1,7 s au maximum). */
+  function walk(ev, next) {
+    const id = ev.pieceId;
+    const g = pieceEls[id];
+    const steps = Math.max(1, ev.to - ev.from);
+    const stepMs = Math.max(45, Math.min(110, Math.round(1700 / steps)));
+    layers.pieces.appendChild(g); // au premier plan pendant le trajet
+    g.style.setProperty('--dur', stepMs + 'ms');
+    g.classList.add('walking');
+    let pos = ev.from;
+    disp[id] = pos;
+    const hop = () => {
+      pos++;
+      disp[id] = pos;
+      renderPieces();
+      Sound.play('step', pos);
+      if (pos >= ev.to) {
+        later(stepMs + 30, () => {
+          g.classList.remove('walking');
+          g.style.removeProperty('--dur');
+          Sound.play('land');
+          later(120, next);
+        });
+        return;
+      }
+      later(stepMs, hop);
+    };
+    hop();
+  }
+
+  // ---------- Déroulement ----------
+  function humanTurn() {
+    if (!game || game.phase === 'over') return false;
+    if (mode === 'online') return game.turn === mySeat;
+    return !game.players[game.turn].ai;
+  }
+
+  function schedule(fn, delay) {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  }
+
+  function autoSingle(delay) {
+    const moves = E.legalMoves(game);
+    const uniq = new Set(moves.map((m) => m.pieceId + '|' + m.to + '|' + m.sum));
+    if (uniq.size === 1) schedule(() => playMove(moves[0]), delay);
+  }
+
+  function tick() {
+    clearTimeout(timer);
+    if (busy || !game) return;
+    render();
+    if (game.phase === 'over') { showWinner(); return; }
+    if (mode === 'online') {
+      if (humanTurn() && game.phase === 'move' && !awaiting && $('opt-auto').checked) autoSingle(700);
+      return;
+    }
+    const pl = game.players[game.turn];
+    if (game.phase === 'roll') {
+      if (pl.ai) schedule(doRoll, 450);
+      return;
+    }
+    const moves = E.legalMoves(game);
+    if (pl.ai) schedule(() => playMove(AI.choose(game, moves, AI.SKILL[settings.difficulty])), 500);
+    else if ($('opt-auto').checked) autoSingle(500);
+  }
+
+  function netFail(err) {
+    awaiting = false;
+    toast(err && err.message ? err.message : 'Erreur réseau.');
+    render();
+  }
+
+  function doRoll() {
+    if (busy || awaiting || !game || game.phase !== 'roll') return;
+    selectedPiece = null;
+    if (mode === 'online') {
+      if (!humanTurn()) return;
+      awaiting = true;
+      renderPanel();
+      Net.roll().catch(netFail);
+      return;
+    }
+    const before = positions();
+    present(before, E.roll(game), tick);
+  }
+
+  function playMove(move) {
+    if (busy || awaiting || game.phase !== 'move') return;
+    selectedPiece = null;
+    if (mode === 'online') {
+      if (!humanTurn()) return;
+      awaiting = true;
+      render();
+      Net.move(move).catch(netFail);
+      return;
+    }
+    const before = positions();
+    present(before, E.applyMove(game, move), tick);
+  }
+
+  function onPieceClick(id) {
+    if (busy || awaiting || !humanTurn() || game.phase !== 'move') return;
+    const moves = E.legalMoves(game).filter((m) => m.pieceId === id);
+    if (moves.length === 0) return;
+    clearTimeout(timer); // l'utilisateur a repris la main (annule le jeu automatique)
+    const distinct = new Set(moves.map((m) => m.to + '|' + m.sum));
+    if (distinct.size === 1) { playMove(moves[0]); return; }
+    selectedPiece = selectedPiece === id ? null : id;
+    renderPieces();
+    renderMarkers();
+    renderPanel();
+  }
+
+  // ---------- Mode en ligne ----------
+  function pump() {
+    if (busy || !inbox.length) return;
+    const msg = inbox.shift();
+    const before = positions();
+    game = msg.state;
+    awaiting = false;
+    present(before, msg.events, () => { if (inbox.length) pump(); else tick(); });
+  }
+
+  function resetPresentation() {
+    gen++;
+    clearTimeout(timer);
+    busy = false;
+    disp = null;
+    rolling = false;
+    awaiting = false;
+    selectedPiece = null;
+    inbox = [];
+  }
+
+  function enterOnline() {
+    if (mode === 'online') return;
+    mode = 'online';
+    resetPresentation();
+  }
+
+  function leaveOnlineMode() {
+    mode = 'local';
+    room = null;
+    mySeat = -1;
+    lastSeq = -1;
+    timerState = null;
+    $('net-status').textContent = '';
+    newGame();
+  }
+
+  Net.on('room', (r) => {
+    enterOnline();
+    room = r;
+    mySeat = r.you;
+    if (r.status === 'lobby') {
+      timerState = null;
+      resetPresentation();
+      $('winner').hidden = true;
+      winnerShown = false;
+    }
+    if (game) renderPanel();
+  });
+
+  Net.on('snapshot', (msg) => {
+    enterOnline();
+    resetPresentation();
+    lastSeq = msg.seq;
+    game = msg.state;
+    winnerShown = false;
+    $('winner').hidden = true;
+    $('log').innerHTML = '';
+    lastRoll = null;
+    setTimer(msg.timer);
+    (msg.recent || []).forEach((ev) => {
+      if (ev.type === 'roll') lastRoll = { player: ev.player, dice: ev.dice };
+      logEvent(ev);
+    });
+    if (!lastRoll && game.dice) lastRoll = { player: game.turn, dice: game.dice };
+    drawBoard();
+    render();
+    tick();
+  });
+
+  Net.on('step', (msg) => {
+    if (mode !== 'online' || msg.seq <= lastSeq) return;
+    lastSeq = msg.seq;
+    setTimer(msg.timer);
+    inbox.push(msg);
+    pump();
+  });
+
+  Net.on('timer', (info) => { if (mode === 'online') setTimer(info); });
+
+  Net.on('status', (s) => {
+    $('net-status').textContent = s === 'open' ? '' : 'Connexion perdue… reconnexion en cours.';
+  });
+
+  Net.on('closed', () => {
+    if (mode === 'online') { toast('Le salon n’existe plus.'); leaveOnlineMode(); }
+    if ($('online').hidden) openSetup();
+  });
+
+  Net.on('left', () => {
+    if (mode !== 'online') return;
+    leaveOnlineMode();
+    openSetup();
+  });
+
+  // ---------- Chronomètre ----------
+  function setTimer(info) {
+    lastTickSecs = null;
+    if (!info) { timerState = null; updateTimer(); return; }
+    timerState = { seat: info.seat, end: Date.now() + info.ms, total: ((room && room.turnSeconds) || 60) * 1000 };
+    updateTimer();
+  }
+
+  function updateTimer() {
+    const box = $('timer');
+    if (mode !== 'online' || !timerState || !game || game.phase === 'over') { box.hidden = true; return; }
+    const left = Math.max(0, timerState.end - Date.now());
+    const secs = Math.ceil(left / 1000);
+    const pl = game.players[timerState.seat];
+    box.hidden = false;
+    box.classList.toggle('urgent', secs <= 10);
+    box.classList.toggle('mine', timerState.seat === mySeat);
+    $('timer-text').textContent = `${timerState.seat === mySeat ? 'Votre temps' : pl.name} : ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+    const bar = $('timer-bar');
+    bar.style.width = Math.min(100, (left / Math.max(1, timerState.total)) * 100) + '%';
+    bar.style.background = COLOR[pl.color];
+    if (timerState.seat === mySeat && secs <= 5 && secs > 0 && secs !== lastTickSecs) { lastTickSecs = secs; Sound.play('tick'); }
+  }
+  setInterval(updateTimer, 250);
+
+  // ---------- Messages ----------
+  let toastTimer = null;
+  function toast(text) {
+    const t = $('toast');
+    t.textContent = text;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 4000);
+  }
+
+  function showWinner() {
+    if (winnerShown) return;
+    winnerShown = true;
+    const w = game.players[game.winner];
+    const online = mode === 'online';
+    const mine = online ? game.ranking.indexOf(mySeat) : -1;
+    $('winner-title').textContent = online && mine > 0 ? `Vous finissez ${rankLabel(mine + 1)}` : online && mine === 0 ? 'Vous avez gagné !' : `${w.name} gagne !`;
+    $('winner-title').style.color = DARK[w.color];
+    $('winner-text').textContent = 'Classement final';
+    const ol = $('winner-ranking');
+    ol.innerHTML = '';
+    game.ranking.forEach((pi, k) => {
+      const pl = game.players[pi];
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="medal">${MEDAL[k]}</span><span class="dot" style="background:${COLOR[pl.color]}"></span>` +
+        `<span class="who">${escapeHtml(pl.name)}${online && pi === mySeat ? ' <small>(vous)</small>' : ''}</span>`;
+      ol.appendChild(li);
+    });
+    const isHost = online && room && room.host === mySeat;
+    $('winner-again').hidden = online && !isHost;
+    $('winner-again').textContent = online ? 'Retour au salon' : 'Rejouer';
+    $('winner-hint').hidden = !(online && !isHost);
+    $('winner').hidden = false;
+  }
+
+  function newGame() {
+    resetPresentation();
+    mode = 'local';
+    lastRoll = null;
+    winnerShown = false;
+    $('log').innerHTML = '';
+    $('winner').hidden = true;
+    game = E.createGame({ names: settings.names, colors: settings.colors, ai: settings.ai });
+    drawBoard();
+    render();
+    tick();
+  }
+
+  // ---------- Configuration ----------
+  function openSetup() {
+    const rows = $('setup-rows');
+    rows.innerHTML = '';
+    const colorOptions = E.PALETTE.map((k) => `<option value="${k}">${E.COLOR_NAMES_FR[k]}</option>`).join('');
+    const isAuto = (n) => !n || Object.values(E.COLOR_NAMES_FR).includes(n); // nom non personnalisé : suit la couleur
+    [0, 1, 2, 3].forEach((i) => {
+      const c = settings.colors[i];
+      const row = document.createElement('div');
+      row.className = 'setup-row';
+      row.innerHTML = `<span class="dot" id="sd-${i}" style="background:${COLOR[c]}"></span>` +
+        `<input type="text" maxlength="14" id="sn-${i}" value="${escapeHtml(isAuto(settings.names[i]) ? E.COLOR_NAMES_FR[c] : settings.names[i])}" aria-label="Nom, coin ${CORNER[i]}" placeholder="Coin ${CORNER[i]}">` +
+        `<select id="sc-${i}" class="color-sel" aria-label="Couleur, coin ${CORNER[i]}">${colorOptions}</select>` +
+        `<select id="sa-${i}" aria-label="Type, coin ${CORNER[i]}"><option value="h">Humain</option><option value="a">Ordinateur</option></select>`;
+      rows.appendChild(row);
+      $('sa-' + i).value = settings.ai[i] ? 'a' : 'h';
+      const sel = $('sc-' + i);
+      sel.value = c;
+      sel.dataset.prev = c;
+    });
+    // changer une couleur déjà prise l'échange avec l'autre place ; un nom non personnalisé suit la couleur
+    rows.querySelectorAll('.color-sel').forEach((sel) => sel.addEventListener('change', () => {
+      const i = Number(sel.id.slice(3));
+      const prev = sel.dataset.prev;
+      const other = [0, 1, 2, 3].find((j) => j !== i && $('sc-' + j).value === sel.value);
+      const apply = (k, from, to) => {
+        const nameBox = $('sn-' + k);
+        if (isAuto(nameBox.value.trim()) || nameBox.value.trim() === E.COLOR_NAMES_FR[from]) nameBox.value = E.COLOR_NAMES_FR[to];
+        $('sd-' + k).style.background = COLOR[to];
+        $('sc-' + k).dataset.prev = to;
+      };
+      if (other !== undefined) { $('sc-' + other).value = prev; apply(other, sel.value, prev); }
+      apply(i, prev, sel.value);
+    }));
+    $('setup-difficulty').value = settings.difficulty;
+    $('setup').hidden = false;
+  }
+
+  $('setup-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    settings.colors = [0, 1, 2, 3].map((i) => $('sc-' + i).value);
+    settings.names = [0, 1, 2, 3].map((i) => $('sn-' + i).value.trim() || E.COLOR_NAMES_FR[settings.colors[i]]);
+    settings.ai = [0, 1, 2, 3].map((i) => $('sa-' + i).value === 'a');
+    settings.difficulty = $('setup-difficulty').value;
+    saveSettings();
+    $('setup').hidden = true;
+    if (Net.hasSession()) { mode = 'local'; Net.leave(); }
+    newGame();
+  });
+  $('btn-new').addEventListener('click', () => {
+    if (mode === 'online' && !window.confirm('Quitter la partie en ligne et commencer une partie locale ?')) return;
+    openSetup();
+  });
+  $('winner-again').addEventListener('click', () => {
+    $('winner').hidden = true;
+    if (mode === 'online') { Net.backToLobby().catch(netFail); return; }
+    openSetup();
+  });
+  $('winner-close').addEventListener('click', () => { $('winner').hidden = true; });
+  $('btn-rules').addEventListener('click', () => { $('rules').hidden = false; });
+  $('rules-close').addEventListener('click', () => { $('rules').hidden = true; });
+  $('btn-roll').addEventListener('click', doRoll);
+  $('resume').addEventListener('click', () => Net.resume().catch(netFail));
+  function renderSoundButton() { $('btn-sound').textContent = Sound.isEnabled() ? '🔊 Son' : '🔇 Muet'; }
+  $('btn-sound').addEventListener('click', () => { Sound.setEnabled(!Sound.isEnabled()); renderSoundButton(); Sound.play('land'); });
+  renderSoundButton();
+  // Les navigateurs n'autorisent le son qu'après un geste de l'utilisateur.
+  ['pointerdown', 'keydown'].forEach((t) => document.addEventListener(t, () => Sound.unlock(), { once: false, passive: true }));
+  $('opt-numbers').addEventListener('change', () => $('nums').setAttribute('display', $('opt-numbers').checked ? 'block' : 'none'));
+  $('opt-auto').addEventListener('change', () => { if (game && game.phase === 'move') tick(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === ' ' || e.key === 'Enter') && !$('btn-roll').disabled && document.activeElement === document.body) {
+      e.preventDefault();
+      doRoll();
+    }
+    if (e.key === 'Escape') { $('rules').hidden = true; }
+  });
+
+  // Aide aux tests automatiques
+  window.__parchis = {
+    get game() { return game; },
+    get busy() { return busy; },
+    get mode() { return mode; },
+    newGame, playMove, doRoll,
+    debugRoll(d1, d2) { // lancer imposé (tests uniquement)
+      clearTimeout(timer);
+      const before = positions();
+      present(before, E.rollDice(game, d1, d2), tick);
+    },
+  };
+  window.ParchisUI = { toast, openSetup };
+
+  // Démarrage : reprise d'un salon en cours, sinon configuration d'une partie locale
+  drawBoard();
+  buildDice();
+  game = E.createGame({ names: settings.names, colors: settings.colors, ai: settings.ai });
+  render();
+  if (Net.hasSession() && Net.available()) Net.connect();
+  else if (!/[?&]room=/i.test(location.search)) openSetup();
+})();
+
+</script>
+  <script>
+/* Salon en ligne : créer / rejoindre un salon, choisir les places (humain ou ordinateur), lancer la partie. */
+(function () {
+  'use strict';
+  const E = window.ParchisEngine;
+  const Net = window.ParchisNet;
+  const $ = (id) => document.getElementById(id);
+  const COLOR = { yellow: '#f2c800', blue: '#2a86d4', red: '#d92b2f', green: '#2e9d44', purple: '#8b4fc4', orange: '#f08a1c', pink: '#e4579c', teal: '#17a398' };
+  const NAME_KEY = 'parchis-name';
+
+  let room = null;
+  let mySeat = -1;
+
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const message = (err) => (err && err.message) || 'Erreur.';
+
+  function readName() {
+    try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; }
+  }
+  function saveName(v) {
+    try { localStorage.setItem(NAME_KEY, v); } catch (e) { /* ignoré */ }
+  }
+
+  // ---------- Affichage ----------
+  function showEntry() {
+    $('online-entry').hidden = false;
+    $('online-room').hidden = true;
+    $('online-error').textContent = '';
+    $('online-name').value = $('online-name').value || readName();
+    const remote = !Net.isHttp;
+    $('online-server-field').hidden = !remote;
+    if (remote) $('online-server').value = Net.getBase();
+    $('online-note').textContent = remote
+      ? 'Cette page est ouverte depuis un fichier : indiquez l’adresse du serveur (lancé avec « node server/server.js »).'
+      : 'Invitez vos amis avec un lien, ou rejoignez-les avec un code.';
+  }
+
+  function showRoom() {
+    $('online-entry').hidden = true;
+    $('online-room').hidden = false;
+    renderRoom();
+  }
+
+  function open() {
+    $('online').hidden = false;
+    if (Net.hasSession() && room && room.status === 'lobby') showRoom(); else showEntry();
+  }
+
+  function sendConfig(changes) {
+    const seats = room.seats.map((s, i) => (changes && changes.seat === i ? changes.kind : (s.kind === 'human' ? 'ai' : s.kind)));
+    const difficulty = changes && changes.difficulty ? changes.difficulty : room.difficulty;
+    const turnSeconds = changes && changes.turnSeconds !== undefined ? changes.turnSeconds : room.turnSeconds;
+    Net.configure(seats, difficulty, turnSeconds).catch((e) => { $('room-error').textContent = message(e); });
+  }
+
+  function renderRoom() {
+    if (!room) return;
+    const host = room.host === mySeat;
+    $('room-error').textContent = '';
+    $('room-code').textContent = room.code;
+    const box = $('room-seats');
+    box.innerHTML = '';
+    room.seats.forEach((s, i) => {
+      const color = s.color || E.COLORS[i];
+      const row = document.createElement('div');
+      row.className = 'seat-row';
+      let label;
+      if (s.kind === 'human') {
+        label = escapeHtml(s.name) + (i === mySeat ? ' <small>(vous)</small>' : '') +
+          (i === room.host ? ' <small>hôte</small>' : '') + (s.connected ? '' : ' <small>déconnecté</small>');
+      } else if (s.kind === 'ai') {
+        label = 'Ordinateur';
+      } else {
+        label = '<span style="color:#6f6a5e">Place libre — en attente d’un joueur</span>';
+      }
+      row.innerHTML = `<span class="dot" style="background:${COLOR[color]}"></span><span>${label}</span><span class="seat-ctl"></span>`;
+      const ctl = row.querySelector('.seat-ctl');
+      if (host || i === mySeat) { // chacun choisit sa couleur ; l'hôte choisit aussi celles des ordinateurs
+        const cs = document.createElement('select');
+        cs.className = 'color-sel';
+        cs.setAttribute('aria-label', `Couleur de la place ${i + 1}`);
+        cs.innerHTML = E.PALETTE.map((k) => `<option value="${k}">${E.COLOR_NAMES_FR[k]}</option>`).join('');
+        cs.value = color;
+        cs.addEventListener('change', () => Net.setColor(i, cs.value).catch((e) => { $('room-error').textContent = message(e); renderRoom(); }));
+        ctl.appendChild(cs);
+      }
+      if (host && s.kind !== 'human') {
+        const sel = document.createElement('select');
+        sel.setAttribute('aria-label', `Type de la place ${i + 1}`);
+        sel.innerHTML = '<option value="open">Humain</option><option value="ai">Ordinateur</option>';
+        sel.value = s.kind;
+        sel.addEventListener('change', () => sendConfig({ seat: i, kind: sel.value }));
+        ctl.appendChild(sel);
+      } else if (host && s.kind === 'human' && i !== mySeat) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = 'Retirer';
+        b.addEventListener('click', () => Net.kick(i).catch((e) => { $('room-error').textContent = message(e); }));
+        ctl.appendChild(b);
+      }
+      box.appendChild(row);
+    });
+    $('room-difficulty').value = room.difficulty;
+    $('room-difficulty').disabled = !host;
+    $('room-turn').value = String(room.turnSeconds);
+    $('room-turn').disabled = !host;
+    $('room-start').hidden = !host;
+    $('room-wait').hidden = host;
+    const open = room.seats.filter((s) => s.kind === 'open').length;
+    $('room-start').textContent = open ? `Lancer (${open} place${open > 1 ? 's' : ''} → ordinateur)` : 'Lancer la partie';
+  }
+
+  // ---------- Événements réseau ----------
+  Net.on('wake', (on) => {
+    $('online-error').textContent = on ? 'Le serveur se réveille (jusqu’à une minute sur un hébergement gratuit)… patientez.' : '';
+  });
+  Net.on('room', (r) => {
+    room = r;
+    mySeat = r.you;
+    if (r.status === 'lobby') {
+      $('online').hidden = false;
+      showRoom();
+    } else {
+      $('online').hidden = true;
+    }
+  });
+  Net.on('closed', () => { room = null; $('online').hidden = true; });
+  Net.on('left', () => { room = null; $('online').hidden = true; });
+
+  // ---------- Actions ----------
+  async function enter(kind) {
+    const err = $('online-error');
+    err.textContent = '';
+    try {
+      if (!Net.isHttp) {
+        Net.setBase($('online-server').value);
+        if (!Net.available()) throw new Error('Indiquez l’adresse du serveur.');
+      }
+      const name = $('online-name').value.trim();
+      saveName(name);
+      if (kind === 'create') await Net.create(name);
+      else {
+        const code = $('online-code').value.trim().toUpperCase();
+        if (!/^[A-Z]{4}$/.test(code)) throw new Error('Le code comporte 4 lettres.');
+        await Net.join(code, name);
+      }
+    } catch (e) {
+      err.textContent = message(e);
+    }
+  }
+
+  $('btn-online').addEventListener('click', open);
+  $('online-close').addEventListener('click', () => { $('online').hidden = true; });
+  $('online-create').addEventListener('click', () => enter('create'));
+  $('online-join').addEventListener('click', () => enter('join'));
+  $('online-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); enter('join'); } });
+  $('online-code').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); });
+  $('room-leave').addEventListener('click', () => { Net.leave(); });
+  $('room-start').addEventListener('click', () => Net.start().catch((e) => { $('room-error').textContent = message(e); }));
+  $('room-difficulty').addEventListener('change', () => sendConfig({ difficulty: $('room-difficulty').value }));
+  $('room-turn').addEventListener('change', () => sendConfig({ turnSeconds: Number($('room-turn').value) }));
+  $('room-copy').addEventListener('click', async () => {
+    const link = Net.isHttp ? `${location.origin}${location.pathname}?room=${room.code}` : room.code;
+    try {
+      await navigator.clipboard.writeText(link);
+      $('room-copy').textContent = 'Copié !';
+    } catch (e) {
+      $('room-copy').textContent = link; // à copier à la main
+    }
+    setTimeout(() => { $('room-copy').textContent = 'Copier le lien d’invitation'; }, 2500);
+  });
+
+  // Lien d'invitation : ?room=ABCD
+  const m = /[?&]room=([A-Za-z]{4})\b/.exec(location.search);
+  if (m && !Net.hasSession()) {
+    open();
+    $('online-code').value = m[1].toUpperCase();
+    $('online-name').focus();
+  }
+})();
+
+</script>
+</body>
+</html>

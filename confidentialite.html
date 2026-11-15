@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf7f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)">
+  <title>Confidentialité — Mes applications</title>
+  <meta name="description" content="Ce que chaque application demande et ce qui peut sortir de votre téléphone, expliqué simplement.">
+  <link rel="icon" href="assets/icons/parchis.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
+
+  <header class="hero compact">
+    <div class="wrap">
+      <p class="eyebrow"><a class="back" href="index.html">← Retour au catalogue</a></p>
+      <h1>Confidentialité</h1>
+      <p class="lead">Ce que chaque application demande, et ce qui peut sortir de votre téléphone, expliqué simplement.</p>
+    </div>
+  </header>
+
+  <main class="wrap page" id="contenu">
+    <section aria-labelledby="bref">
+      <h2 id="bref">En bref</h2>
+      <ul class="plain">
+        <li>Ce site n'a ni publicité, ni compte utilisateur, ni formulaire.</li>
+        <li>Chaque application ne demande que les autorisations listées ci-dessous.</li>
+        <li>Ce qui peut sortir de votre appareil est précisé, application par application.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="site">
+      <h2 id="site">Ce site</h2>
+      <p>Le site est fait de pages simples. Il ne vous demande aucune information personnelle et n'utilise aucun cookie de publicité ni de suivi publicitaire.</p>
+      <p id="stats-note">Ce site ne mesure pas sa fréquentation.</p>
+      <p>Comme tout service d'hébergement, celui qui héberge ce site peut conserver des journaux techniques de connexion (par exemple l'adresse IP), selon sa propre politique.</p>
+      <p>Si vous m'écrivez par e-mail, votre message et votre adresse ne servent qu'à vous répondre.</p>
+    </section>
+
+    <section aria-labelledby="apps">
+      <h2 id="apps">Les applications</h2>
+      <p>Ce sont des fichiers APK à installer sur Android. Voici, pour chacune, ce qu'elle demande et ce qui peut sortir de votre appareil.</p>
+      <div class="priv-list" id="priv-list"></div>
+    </section>
+
+    <section aria-labelledby="tiers">
+      <h2 id="tiers">Services de tiers mentionnés</h2>
+      <ul class="plain">
+        <li><b>Pl@ntNet</b> reçoit les photos de plantes envoyées par l'application Plantes. Il applique sa propre politique de confidentialité (<a href="https://plantnet.org/" rel="noopener">plantnet.org</a>).</li>
+        <li><b>Firebase (Google)</b> héberge la base de données des parties en ligne de Dames chinoises (<a href="https://firebase.google.com/support/privacy" rel="noopener">politique de Firebase</a>).</li>
+        <li><b>Google ML Kit</b> fournit la lecture de texte et la détection de visages. Le traitement se fait sur le téléphone, mais ces modules peuvent envoyer des données techniques anonymes à Google.</li>
+        <li><b>Le service vocal d'Android</b> traite la dictée d'un mot dans Recherche Image.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="contact">
+      <h2 id="contact">Une question ?</h2>
+      <p id="contact-line">Utilisez l'adresse indiquée en bas de la page d'accueil.</p>
+      <p class="muted">Dernière mise à jour : 15 novembre 2026.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p><a href="index.html">Retour au catalogue</a></p>
+    </div>
+  </footer>
+
+  <script src="data/apps.js"></script>
+  <script src="assets/common.js"></script>
+  <script src="assets/privacy.js"></script>
+</body>
+</html>
