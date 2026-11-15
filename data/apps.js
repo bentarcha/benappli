@@ -359,14 +359,14 @@ window.APPS = [
       "Horaires d'ouverture, stations fermées masquées ou affichées selon vos réglages",
       "Position de l'appareil ou adresse choisie sur la carte",
       "Thème clair ou sombre, palette de couleurs au choix",
-      "Une application libre, traduite par sa communauté"
+      "Une application libre (AGPL-3.0), adaptée à partir de Carburoid"
     ],
     "privacy": [
       "Elle demande l'accès à votre position (précise ou approximative) pour classer les stations selon la distance. Vous pouvez aussi saisir une adresse à la place.",
       "Les prix sont téléchargés depuis les sites officiels des données publiques. Pour la France, les noms des stations et les horaires ne sont pas encore tous disponibles : l'application l'indique.",
       "Pour fonctionner, elle contacte des services publics ouverts : OpenStreetMap (recherche d'adresse), OpenFreeMap (fond de carte) et OSRM (distances par la route). Ces services peuvent recevoir votre position ou l'adresse choisie.",
       "Aucune publicité. En cas de plantage, le rapport d'erreur reste sur votre téléphone : c'est vous qui choisissez de le copier, l'enregistrer ou l'envoyer.",
-      "Logiciel libre (licence AGPL-3.0) : son code est public et vérifiable."
+      "Logiciel libre (licence AGPL-3.0), adapté à partir de Carburoid : le code source est accessible, voir la fiche de l'application."
     ],
     "tags": [
       "carburant",
@@ -380,7 +380,9 @@ window.APPS = [
       "nom": "Carburoid",
       "auteur": "David García Garzón",
       "licence": "AGPL-3.0",
-      "source": "https://github.com/vokimon/carburoid"
+      "source": "https://github.com/vokimon/carburoid",
+      "modifiee": true,
+      "sourceModifiee": ""
     },
     "file": "carbuprix.apk",
     "icon": "assets/icons/carbuprix.png",

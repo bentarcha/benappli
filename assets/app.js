@@ -146,12 +146,19 @@
         permsList(a));
     }
     if (a.libre) {
+      const l = a.libre;
+      const ask = contactHref(`Code source de ${a.name}`, "Bonjour,\n\nJe souhaite recevoir le code source de cette version.\n");
       body.append(
         h("h3", {}, "Logiciel libre"),
         h("p", { class: "libre" },
-          `Cette application est basée sur ${a.libre.nom}, de ${a.libre.auteur}, diffusée sous licence ${a.libre.licence}. `,
-          "Vous pouvez consulter, étudier et réutiliser son code source : ",
-          h("a", { href: a.libre.source, target: "_blank", rel: "noopener" }, "code source sur GitHub"), "."));
+          l.modifiee
+            ? `Cette version est une adaptation modifiée de ${l.nom}, de ${l.auteur}. `
+            : `Cette application est basée sur ${l.nom}, de ${l.auteur}. `,
+          `Elle reste diffusée sous licence ${l.licence} : vous pouvez consulter, étudier et réutiliser son code. `),
+        h("p", { class: "libre" },
+          l.sourceModifiee && [h("a", { href: l.sourceModifiee, target: "_blank", rel: "noopener" }, "Code source de cette version"), " · "],
+          h("a", { href: l.source, target: "_blank", rel: "noopener" }, `Code source d'origine (${l.nom})`),
+          !l.sourceModifiee && l.modifiee && ask && [" · ", h("a", { href: ask }, "Demander le code source de cette version")]));
     }
     if (canQr() && !/Android/i.test(navigator.userAgent)) {
       const box = h("div", { class: "qr" });
