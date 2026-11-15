@@ -345,5 +345,57 @@ window.APPS = [
       "android.permission.READ_MEDIA_IMAGES"
     ],
     "updated": "2026-10-20"
+  },
+  {
+    "id": "carbuprix",
+    "name": "CarbuPrix",
+    "category": "outils",
+    "type": "android",
+    "tagline": "Trouvez la station-service la moins chère ou la plus proche.",
+    "description": "CarbuPrix compare les stations-service autour de vous et n'affiche que celles qui sont soit moins chères, soit plus proches que les autres : plus on s'éloigne, plus le prix doit baisser pour que la station mérite le détour. Les prix viennent des données officielles de la France, de l'Espagne et du Portugal. Vous choisissez votre carburant, votre position (ou une adresse sur la carte), puis ouvrez la station dans votre application de cartes.",
+    "features": [
+      "Deux vues : la moins chère ou la plus proche",
+      "Tous les carburants : gazole, essences SP95/SP98, E85, GPL, GNC, hydrogène, AdBlue…",
+      "Horaires d'ouverture, stations fermées masquées ou affichées selon vos réglages",
+      "Position de l'appareil ou adresse choisie sur la carte",
+      "Thème clair ou sombre, palette de couleurs au choix",
+      "Une application libre, traduite par sa communauté"
+    ],
+    "privacy": [
+      "Elle demande l'accès à votre position (précise ou approximative) pour classer les stations selon la distance. Vous pouvez aussi saisir une adresse à la place.",
+      "Les prix sont téléchargés depuis les sites officiels des données publiques. Pour la France, les noms des stations et les horaires ne sont pas encore tous disponibles : l'application l'indique.",
+      "Pour fonctionner, elle contacte des services publics ouverts : OpenStreetMap (recherche d'adresse), OpenFreeMap (fond de carte) et OSRM (distances par la route). Ces services peuvent recevoir votre position ou l'adresse choisie.",
+      "Aucune publicité. En cas de plantage, le rapport d'erreur reste sur votre téléphone : c'est vous qui choisissez de le copier, l'enregistrer ou l'envoyer.",
+      "Logiciel libre (licence AGPL-3.0) : son code est public et vérifiable."
+    ],
+    "tags": [
+      "carburant",
+      "essence",
+      "gazole",
+      "station-service",
+      "prix",
+      "carte"
+    ],
+    "libre": {
+      "nom": "Carburoid",
+      "auteur": "David García Garzón",
+      "licence": "AGPL-3.0",
+      "source": "https://github.com/vokimon/carburoid"
+    },
+    "file": "carbuprix.apk",
+    "icon": "assets/icons/carbuprix.png",
+    "version": "1.6.5",
+    "versionCode": "1060500",
+    "package": "net.canvoki.carburoid",
+    "size": 37297170,
+    "minSdk": 26,
+    "permissions": [
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.ACCESS_WIFI_STATE",
+      "android.permission.INTERNET"
+    ],
+    "updated": "2026-11-01"
   }
 ];

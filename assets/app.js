@@ -145,6 +145,14 @@
         h("h3", {}, "Autorisations demandées"),
         permsList(a));
     }
+    if (a.libre) {
+      body.append(
+        h("h3", {}, "Logiciel libre"),
+        h("p", { class: "libre" },
+          `Cette application est basée sur ${a.libre.nom}, de ${a.libre.auteur}, diffusée sous licence ${a.libre.licence}. `,
+          "Vous pouvez consulter, étudier et réutiliser son code source : ",
+          h("a", { href: a.libre.source, target: "_blank", rel: "noopener" }, "code source sur GitHub"), "."));
+    }
     if (canQr() && !/Android/i.test(navigator.userAgent)) {
       const box = h("div", { class: "qr" });
       try {
