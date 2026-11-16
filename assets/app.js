@@ -47,6 +47,12 @@
     const strip = $("#icon-strip");
     for (const a of APPS) strip.append(h("img", { src: a.icon, alt: "", width: 60, height: 60 }));
     const mail = contactHref("À propos de vos applications");
+    if (/^https:\/\//.test(SITE.don || "")) {
+      const don = $("#foot-don");
+      don.hidden = false;
+      don.append("Ces applications sont gratuites et sans publicité. Si elles vous servent, vous pouvez soutenir le site, sans aucune obligation : ",
+        h("a", { href: SITE.don, target: "_blank", rel: "noopener", onclick: () => track("don", "Clic sur le lien de don") }, "faire un don"), ".");
+    }
     if (mail) $("#foot-contact").append("Une question, un souci, une idée ? Écrivez-moi : ", h("a", { href: mail }, SITE.contact));
   }
 
