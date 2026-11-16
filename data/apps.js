@@ -173,7 +173,7 @@ window.APPS = [
   },
   {
     "id": "mathprim",
-    "name": "MathPrim",
+    "name": "Math Primaire",
     "altName": "رياضيات الأسد",
     "category": "education",
     "type": "android",
@@ -201,8 +201,8 @@ window.APPS = [
     "file": "MathPrim.apk",
     "icon": "assets/icons/mathprim.png",
     "screenshots": [
-      { "src": "assets/captures/mathprim-1.webp", "alt": "MathPrim : l'accueil avec le défi du jour, le sprint et les thèmes de calcul", "w": 780, "h": 1688 },
-      { "src": "assets/captures/mathprim-2.webp", "alt": "MathPrim : une multiplication à résoudre avec le clavier numérique", "w": 780, "h": 1688 }
+      { "src": "assets/captures/mathprim-1.webp", "alt": "Math Primaire : l'accueil avec le défi du jour, le sprint et les thèmes de calcul", "w": 780, "h": 1688 },
+      { "src": "assets/captures/mathprim-2.webp", "alt": "Math Primaire : une multiplication à résoudre avec le clavier numérique", "w": 780, "h": 1688 }
     ],
     "version": "1.0",
     "versionCode": "1",

@@ -26,7 +26,7 @@ Ouvrez `data/apps.js` avec le Bloc-notes : chaque application a un `name`, un `t
 3. Pour un jeu jouable dans le navigateur, copiez le bloc de `parchis` (`"type": "web"`).
 
 ## Mettre le site en ligne gratuitement
-**GitHub Pages ou Cloudflare Pages** hébergent le site. Attention aux limites de taille : GitHub refuse les fichiers de plus de 100 Mo dans un dépôt classique, et vos APK les plus lourds s'en approchent (MathPrim : 91 Mo).
+**GitHub Pages ou Cloudflare Pages** hébergent le site. Attention aux limites de taille : GitHub refuse les fichiers de plus de 100 Mo dans un dépôt classique, et vos APK les plus lourds s'en approchent (Math Primaire : 91 Mo).
 
 Solution la plus sûre : mettre les APK dans les **Releases** du dépôt GitHub (jusqu'à 2 Go par fichier), puis indiquer dans `data/apps.js` :
 
