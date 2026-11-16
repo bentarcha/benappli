@@ -240,6 +240,9 @@ window.APPS = [
     ],
     "file": "Plantes.apk",
     "icon": "assets/icons/plantes.webp",
+    "screenshots": [
+      { "src": "assets/captures/plantes-1.webp", "alt": "Plantes : l'écran d'identification, pour choisir une photo dans la galerie ou en prendre une", "w": 720, "h": 1640 }
+    ],
     "version": "1.0",
     "versionCode": "1",
     "package": "com.example.plantes2",
