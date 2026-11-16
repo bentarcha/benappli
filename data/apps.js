@@ -324,6 +324,9 @@ window.APPS = [
     ],
     "file": "Texte-image.apk",
     "icon": "assets/icons/recherche-image.webp",
+    "screenshots": [
+      { "src": "assets/captures/recherche-image-1.webp", "alt": "Recherche Image : le champ pour saisir le mot à retrouver dans vos photos", "w": 720, "h": 1640 }
+    ],
     "version": "1.0",
     "versionCode": "1",
     "package": "com.example.recherchefichier",
@@ -362,6 +365,10 @@ window.APPS = [
     ],
     "file": "Visages2.apk",
     "icon": "assets/icons/visages.webp",
+    "screenshots": [
+      { "src": "assets/captures/visages-1.webp", "alt": "Visages : choisir un visage de référence avec la caméra ou la galerie", "w": 720, "h": 1640 },
+      { "src": "assets/captures/visages-2.webp", "alt": "Visages : la recherche de deux visages à retrouver ensemble", "w": 720, "h": 1640 }
+    ],
     "version": "3.0",
     "versionCode": "3",
     "package": "com.belaid.visages",
@@ -504,6 +511,10 @@ window.APPS = [
     },
     "file": "station-service.apk",
     "icon": "assets/icons/station-service.webp",
+    "screenshots": [
+      { "src": "assets/captures/station-service-1.webp", "alt": "Station Service : les stations autour de soi sur la carte, classées de la moins chère à la plus proche", "w": 720, "h": 1640 },
+      { "src": "assets/captures/station-service-2.webp", "alt": "Station Service : les réglages, avec le thème et la palette de couleurs", "w": 720, "h": 1640 }
+    ],
     "version": "1.0",
     "versionCode": "1060500",
     "package": "benappli.stations",
