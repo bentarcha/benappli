@@ -464,5 +464,58 @@ window.APPS = [
       "android.permission.INTERNET"
     ],
     "updated": "2026-11-16"
+  },
+  {
+    "id": "station-service",
+    "name": "Station Service",
+    "category": "outils",
+    "type": "android",
+    "tagline": "Trouvez la station-service la moins chère ou la plus proche.",
+    "description": "Station Service compare les stations-service autour de vous et vous montre celles qui sont les moins chères ou les plus proches. Les prix viennent des données officielles de l'État. Vous choisissez votre carburant, votre position (ou une adresse sur la carte), puis ouvrez la station dans votre application de cartes.",
+    "features": [
+      "Deux classements : la moins chère ou la plus proche",
+      "Tous les carburants : gazole, essences SP95/SP98, E85, GPL, GNC, hydrogène, AdBlue…",
+      "Carte avec le détail de chaque station, à partager ou à ouvrir dans votre application de cartes",
+      "Stations fermées masquées ou affichées selon vos réglages",
+      "Position de l'appareil ou adresse choisie sur la carte",
+      "Thème clair ou sombre, palette de couleurs et langue au choix"
+    ],
+    "privacy": [
+      "Elle demande l'accès à votre position (précise ou approximative) pour classer les stations selon la distance. Vous pouvez aussi saisir une adresse à la place.",
+      "Les prix sont téléchargés depuis les données publiques de l'État (data.economie.gouv.fr). Pour la France, les noms des stations et les horaires ne sont pas encore tous disponibles : l'application l'indique.",
+      "Pour fonctionner, elle contacte des services publics ouverts : OpenStreetMap (recherche d'adresse), OpenFreeMap (fond de carte) et OSRM (distances par la route). Ces services peuvent recevoir votre position ou l'adresse choisie.",
+      "Aucune publicité. En cas de plantage, le rapport d'erreur reste sur votre téléphone : c'est vous qui choisissez de le copier, l'enregistrer ou l'envoyer.",
+      "Logiciel libre (licence AGPL-3.0) : son code est public et vérifiable."
+    ],
+    "tags": [
+      "carburant",
+      "essence",
+      "gazole",
+      "station-service",
+      "prix",
+      "carte"
+    ],
+    "libre": {
+      "nom": "Carburoid",
+      "auteur": "David García Garzón",
+      "licence": "AGPL-3.0",
+      "source": "https://github.com/vokimon/carburoid",
+      "modifiee": true
+    },
+    "file": "station-service.apk",
+    "icon": "assets/icons/station-service.webp",
+    "version": "1.6.5",
+    "versionCode": "1060500",
+    "package": "benappli.stations",
+    "size": 37396954,
+    "minSdk": 26,
+    "permissions": [
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.ACCESS_WIFI_STATE",
+      "android.permission.INTERNET"
+    ],
+    "updated": "2026-11-16"
   }
 ];
