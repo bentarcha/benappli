@@ -60,6 +60,7 @@ function jsonLd(a, url, desc) {
   if (a.altName) o.alternateName = a.altName;
   if (a.screenshots && a.screenshots.length) o.screenshot = a.screenshots.map((x) => BASE + x.src);
   if (!web) { o.downloadUrl = dlUrl(a); o.softwareVersion = a.version; }
+  if (a.play) o.installUrl = a.play;
   if (a.libre) o.isBasedOn = { "@type": "SoftwareApplication", name: a.libre.nom, url: a.libre.source };
   return JSON.stringify(o).replace(/</g, "\\u003c");
 }
@@ -134,10 +135,12 @@ function page(a) {
     <div class="app-top">
       <img src="../${esc(a.icon)}" alt="Icône de ${esc(a.name)}" width="96" height="96">
       <div class="dlg-actions">
-        <a class="btn primary" href="${esc(href)}"${target} data-track="${track}" data-title="${esc(trackTitle)}">${web ? ICON_PLAY : ICON_DL}${web ? "Jouer" : "Télécharger"}</a>
+${a.play ? `        <a class="btn primary" href="${esc(a.play)}" target="_blank" rel="noopener" data-track="play/${a.id}" data-title="${esc("Google Play : " + a.name)}">${ICON_PLAY}Google Play</a>
+        <a class="btn" href="${esc(href)}" data-track="${track}" data-title="${esc(trackTitle)}">${ICON_DL}Télécharger l'APK</a>` : `        <a class="btn primary" href="${esc(href)}"${target} data-track="${track}" data-title="${esc(trackTitle)}">${web ? ICON_PLAY : ICON_DL}${web ? "Jouer" : "Télécharger"}</a>`}
         <a class="btn" href="../#${esc(a.id)}">Voir dans la liste</a>
       </div>
-    </div>
+    </div>${a.play ? `
+    <p class="muted">Déjà installée depuis Google Play ? Désinstallez-la avant d'installer l'APK : les deux versions n'ont pas la même signature.</p>` : ""}
 
     <section aria-labelledby="presentation">
       <h2 id="presentation">${web ? "Le jeu" : "L'application"}</h2>

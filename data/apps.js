@@ -416,5 +416,50 @@ window.APPS = [
       "android.permission.INTERNET"
     ],
     "updated": "2026-10-24"
+  },
+  {
+    "id": "traducteur-ocr",
+    "name": "Traducteur OCR",
+    "category": "outils",
+    "type": "android",
+    "tagline": "Photographiez un texte anglais, allemand ou espagnol : il est traduit en français.",
+    "description": "Traducteur OCR lit le texte d'une photo ou d'une image de votre galerie, puis le traduit en français. Il reconnaît l'anglais, l'allemand et l'espagnol. La reconnaissance du texte se fait sur le téléphone ; les modèles de traduction sont téléchargés une seule fois, au premier usage d'une langue. L'application est aussi disponible sur Google Play.",
+    "features": [
+      "Lecture du texte d'une photo prise avec l'appareil, ou d'une image de la galerie",
+      "Traduction en français depuis l'anglais, l'allemand ou l'espagnol",
+      "Reconnaissance du texte sur le téléphone, sans envoyer vos images",
+      "Modèles de traduction téléchargés une seule fois",
+      "Aucune publicité"
+    ],
+    "privacy": [
+      "Vos photos et images sont lues sur le téléphone : l'application ne les envoie nulle part.",
+      "L'accès à Internet sert à télécharger les modèles de traduction, une fois par langue. Comme toute application qui utilise les modèles de Google (ML Kit), elle peut échanger avec Google des informations techniques liées à ces modèles.",
+      "L'accès à l'appareil photo et à vos images sert seulement à choisir le texte à traduire.",
+      "Aucune publicité."
+    ],
+    "tags": [
+      "traduction",
+      "OCR",
+      "photo",
+      "texte",
+      "anglais",
+      "allemand",
+      "espagnol"
+    ],
+    "file": "Traducteur-ocr.apk",
+    "icon": "assets/icons/traducteur-ocr.webp",
+    "play": "https://play.google.com/store/apps/details?id=belaid.traducteur_ocr",
+    "version": "3.4",
+    "versionCode": "21",
+    "package": "belaid.traducteur_ocr",
+    "size": 22943594,
+    "minSdk": 26,
+    "permissions": [
+      "android.permission.CAMERA",
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.INTERNET"
+    ],
+    "updated": "2026-11-16"
   }
 ];

@@ -110,13 +110,21 @@
         h("button", { class: "btn", type: "button", onclick: () => openApp(a.id) }, "Détails")));
   }
 
-  function primaryButton(a) {
+  const PLAY_NOTE = "Déjà installée depuis Google Play ? Désinstallez-la avant d'installer l'APK : les deux versions n'ont pas la même signature.";
+
+  function playButton(a) {
+    return h("a", { class: "btn primary", href: a.play, target: "_blank", rel: "noopener",
+      onclick: () => track("play/" + a.id, "Google Play : " + a.name) }, icon(ICON_PLAY), "Google Play");
+  }
+
+  function primaryButton(a, secondary) {
     const web = isWeb(a);
-    const attrs = { class: "btn primary", href: downloadUrl(a),
+    if (a.play && !secondary) return playButton(a);
+    const attrs = { class: secondary ? "btn" : "btn primary", href: downloadUrl(a),
       onclick: () => track((web ? "jeu/" : "telechargement/") + a.id, (web ? "Jeu lancé : " : "Téléchargement : ") + a.name) };
     if (web) { attrs.target = "_blank"; attrs.rel = "noopener"; }
     else if (!/^https?:/.test(downloadUrl(a))) attrs.download = a.file;
-    return h("a", attrs, icon(web ? ICON_PLAY : ICON_DL), web ? "Jouer" : "Télécharger");
+    return h("a", attrs, icon(web ? ICON_PLAY : ICON_DL), web ? "Jouer" : (secondary ? "Télécharger l'APK" : "Télécharger"));
   }
 
   /* ---------- Detail dialog ---------- */
@@ -138,8 +146,9 @@
       a.screenshots && a.screenshots.length && h("div", { class: "shots", tabindex: 0, role: "group", "aria-label": "Captures d'écran" },
         a.screenshots.map((x) => h("img", { src: x.src, alt: x.alt, width: x.w || 390, height: x.h || 844, loading: "lazy" }))),
       a.features && a.features.length && h("ul", { class: "feats", "aria-label": "Ce que vous y trouverez" }, a.features.map((f) => h("li", {}, f))),
-      h("div", { class: "dlg-actions" }, primaryButton(a),
+      h("div", { class: "dlg-actions" }, primaryButton(a), a.play && primaryButton(a, true),
         h("button", { class: "btn", type: "button", onclick: (e) => copyText(absoluteUrl("#" + a.id), e.currentTarget, "Copier le lien de cette page") }, "Copier le lien de cette page")),
+      a.play && h("p", { class: "muted" }, PLAY_NOTE),
       specs(a));
 
     if (!web) {
