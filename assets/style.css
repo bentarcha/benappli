@@ -251,3 +251,14 @@ dialog[open] { animation: pop .22s ease; }
   #foot-don a { background: #2a9fd1; color: #06202b; }
   #foot-don a:hover, #foot-don a:focus-visible { background: #4db6e0; }
 }
+
+/* Page Nouveautés */
+.news { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 12px; }
+.news > li { display: flex; gap: 16px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
+.news-ico { flex: none; }
+.news-ico img { display: block; width: 56px; height: 56px; border-radius: 14px; object-fit: cover; }
+.news h3 { margin: 0 0 2px; font-size: 1.15rem; letter-spacing: -.01em; }
+.news h3 a { text-decoration: none; }
+.news h3 a:hover { text-decoration: underline; }
+.news p { margin: 0 0 6px; }
+.news .plain { margin: 0; }

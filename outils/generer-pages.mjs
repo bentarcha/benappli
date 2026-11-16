@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Génère, à partir de data/apps.js :
 //   - une page par application : <id>/index.html (titre, description et données structurées propres) ;
+//   - nouveautes.html (dernières mises à jour) et a-propos.html ;
 //   - sitemap.xml et robots.txt ;
 //   - la liste de liens en bas de index.html (entre les repères « fiches:debut » et « fiches:fin »).
 // À relancer après toute modification de data/apps.js :   node outils/generer-pages.mjs
@@ -33,6 +34,149 @@ const cut = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, 
 const dlUrl = (a) => isWeb(a) ? BASE + a.url : (SITE.downloadBase || "") + encodeURIComponent(a.file);
 const ICON_DL = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_PLAY = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+
+// --- Pied de page commun (p = préfixe vers la racine : "" ou "../") ---
+const footerLinks = (p) => `<a href="${p || "./"}">Accueil</a> · <a href="${p}nouveautes.html">Nouveautés</a> · <a href="${p}a-propos.html">À propos</a> · <a href="${p}confidentialite.html">Confidentialité</a>`;
+
+// --- Page simple à la racine (Nouveautés, À propos) ---
+function simplePage({ file, title, desc, h1, lead, body, name }) {
+  const url = BASE + file;
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#faf7f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)">
+  <title>${esc(title)}</title>
+  <meta name="description" content="${esc(desc)}">
+  <link rel="canonical" href="${url}">
+  <link rel="icon" href="assets/icons/parchis.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="${esc(SITE.title)}">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="${esc(title)}">
+  <meta property="og:description" content="${esc(desc)}">
+  <meta property="og:url" content="${url}">
+  <meta property="og:image" content="${BASE}assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="${BASE}assets/og-image.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#contenu">Aller au contenu</a>
+
+  <header class="hero compact">
+    <div class="wrap">
+      <p class="eyebrow"><a class="back" href="./">← Toutes les applications</a></p>
+      <h1>${esc(h1)}</h1>
+      <p class="lead">${esc(lead)}</p>
+    </div>
+  </header>
+
+  <main class="wrap page" id="contenu">
+${body}
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p id="foot-contact"></p>
+      <p class="foot-links">${footerLinks("")} · Applications proposées telles quelles, sans publicité.</p>
+    </div>
+  </footer>
+
+  <script src="data/apps.js"></script>
+  <script src="assets/common.js"></script>
+  <script src="assets/page.js" data-name="${esc(name || h1)}"></script>
+</body>
+</html>
+`;
+}
+
+// --- Nouveautés : dernières mises à jour, de la plus récente à la plus ancienne ---
+function nouveautesPage() {
+  const sorted = [...APPS].sort((a, b) => b.updated.localeCompare(a.updated) || a.name.localeCompare(b.name, "fr"));
+  const items = sorted.map((a) => {
+    const web = isWeb(a);
+    const meta = web ? `Jeu en ligne · mis en ligne le ${fmtDate(a.updated)}` : `Version ${a.version} · ${fmtDate(a.updated)}`;
+    const notes = [...(a.notes || [])];
+    if (a.play) notes.push("Aussi disponible sur Google Play.");
+    return `      <li>
+        <a class="news-ico" href="${esc(a.id)}/"><img src="${esc(a.icon)}" alt="" width="56" height="56" loading="lazy"></a>
+        <div>
+          <h3><a href="${esc(a.id)}/">${esc(a.name)}</a></h3>
+          <p class="muted"><time datetime="${esc(a.updated)}">${esc(meta)}</time></p>
+          <p>${esc(a.tagline)}</p>${notes.length ? `
+          <ul class="plain">
+            ${notes.map((t) => `<li>${esc(t)}</li>`).join("\n            ")}
+          </ul>` : ""}
+        </div>
+      </li>`;
+  }).join("\n");
+  return simplePage({
+    file: "nouveautes.html",
+    title: "Nouveautés — dernières mises à jour de mes applications",
+    desc: "Les applications et jeux mis à jour récemment : version, date et nouveautés, de la plus récente à la plus ancienne.",
+    h1: "Nouveautés",
+    lead: "Les dernières mises à jour, de la plus récente à la plus ancienne.",
+    name: "Nouveautés",
+    body: `    <section aria-labelledby="maj">
+      <h2 id="maj">Dernières mises à jour</h2>
+      <ol class="news">
+${items}
+      </ol>
+      <p class="muted">Pour récupérer la dernière version d'une application, téléchargez-la de nouveau depuis sa fiche.</p>
+    </section>`,
+  });
+}
+
+// --- À propos ---
+function aProposPage() {
+  const nbApk = APPS.filter((a) => !isWeb(a)).length, nbWeb = APPS.filter(isWeb).length;
+  const nbPlay = APPS.filter((a) => a.play).length;
+  const nbLibre = APPS.filter((a) => a.libre).length;
+  const plur = (n, un, plus) => `${n} ${n > 1 ? plus : un}`;
+  return simplePage({
+    file: "a-propos.html",
+    title: "À propos — Mes applications (aucune pub)",
+    desc: "Pourquoi ce site existe, ce que vous pouvez attendre de ces applications gratuites et sans publicité, et comment me contacter.",
+    h1: "À propos",
+    lead: "Des applications gratuites et sans publicité, réunies au même endroit.",
+    body: `    <section aria-labelledby="pourquoi">
+      <h2 id="pourquoi">Pourquoi ce site ?</h2>
+      <p>Ce site réunit mes applications Android (${plur(nbApk, "application", "applications")} à installer) et ${plur(nbWeb, "jeu", "jeux")} à jouer directement dans le navigateur. Chacune a sa fiche : ce qu'elle fait, ce qu'elle demande à votre téléphone et ce qu'elle fait de vos données.</p>
+    </section>
+
+    <section aria-labelledby="promesses">
+      <h2 id="promesses">Ce que vous pouvez attendre</h2>
+      <ul class="plain">
+        <li><b>Gratuit, sans publicité.</b> Aucune bannière, aucune vidéo imposée.</li>
+        <li><b>Aucun compte à créer.</b> Ni ici, ni pour utiliser les applications.</li>
+        <li><b>Des autorisations expliquées.</b> Chaque fiche indique, en français simple, ce que l'application demande et pourquoi. Tout est résumé sur la page <a href="confidentialite.html">Confidentialité</a>.</li>${nbLibre ? `
+        <li><b>Du logiciel libre, quand c'est le cas.</b> ${plur(nbLibre, "application est basée", "applications sont basées")} sur un logiciel libre : son auteur et son code source sont indiqués sur sa fiche.</li>` : ""}
+      </ul>
+    </section>
+
+    <section aria-labelledby="installer">
+      <h2 id="installer">Comment les installer ?</h2>
+      <p>Les applications se téléchargent ici sous forme de fichier APK${nbPlay ? `, dont ${nbPlay} ${nbPlay > 1 ? "sont aussi" : "est aussi"} sur Google Play (bouton « Google Play » sur la fiche)` : ""}. Les explications pas à pas sont sur la <a href="./#help-title">page d'accueil</a>.</p>
+    </section>
+
+    <section aria-labelledby="contact">
+      <h2 id="contact">Une question, un souci, une idée ?</h2>
+      <p data-contact data-subject="Message depuis le site">Écrivez-moi : </p>
+      <p class="muted">Indiquez le modèle de votre téléphone et sa version d'Android : cela aide à retrouver l'origine d'un problème.</p>
+    </section>
+
+    <section aria-labelledby="soutien" data-don hidden>
+      <h2 id="soutien">Soutenir le site</h2>
+      <p>Tout reste gratuit. Si ces applications vous servent, vous pouvez soutenir le site, sans aucune obligation : <a data-don-link href="#" target="_blank" rel="noopener">faire un don</a>.</p>
+    </section>`,
+  });
+}
 
 function seo(a) {
   const web = isWeb(a);
@@ -206,7 +350,7 @@ ${libreBlock(a)}${web ? "" : `
   <footer class="foot">
     <div class="wrap">
       <p id="foot-contact"></p>
-      <p class="foot-links"><a href="../">Accueil</a> · <a href="../confidentialite.html">Confidentialité</a> · Applications proposées telles quelles, sans publicité.</p>
+      <p class="foot-links">${footerLinks("../")} · Applications proposées telles quelles, sans publicité.</p>
     </div>
   </footer>
 
@@ -220,10 +364,13 @@ ${libreBlock(a)}${web ? "" : `
 
 // --- Pages ---
 for (const a of APPS) write(`${a.id}/index.html`, page(a));
+write("nouveautes.html", nouveautesPage());
+write("a-propos.html", aProposPage());
 
 // --- sitemap.xml ---
 const last = APPS.map((a) => a.updated).sort().at(-1);
 const urls = [[BASE, last, "1.0"], ...APPS.map((a) => [`${BASE}${a.id}/`, a.updated, "0.8"]),
+  [`${BASE}nouveautes.html`, last, "0.5"], [`${BASE}a-propos.html`, last, "0.4"],
   [`${BASE}confidentialite.html`, last, "0.3"]];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -249,7 +396,7 @@ console.log(`${APPS.length} pages, sitemap.xml (${urls.length} adresses), robots
 const stampPaths = ["assets/style.css", "assets/common.js", "assets/app.js", "assets/page.js", "assets/privacy.js", "data/apps.js"];
 const stamp = Object.fromEntries(stampPaths.map((f) => [f, crypto.createHash("sha1").update(fs.readFileSync(path.join(root, f))).digest("hex").slice(0, 8)]));
 const stampRe = /((?:\.\.\/)?(assets\/(?:style\.css|common\.js|app\.js|page\.js|privacy\.js)|data\/apps\.js))(\?v=[0-9a-f]+)?(?=")/g;
-for (const f of ["index.html", "confidentialite.html", ...APPS.map((a) => `${a.id}/index.html`)]) {
+for (const f of ["index.html", "confidentialite.html", "nouveautes.html", "a-propos.html", ...APPS.map((a) => `${a.id}/index.html`)]) {
   const before = read(f);
   const after = before.replace(stampRe, (_, whole, file) => `${whole}?v=${stamp[file]}`);
   if (after !== before) write(f, after);
