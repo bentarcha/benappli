@@ -62,9 +62,9 @@ a { color: inherit; }
 .stats { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; padding: 0; }
 .stats li { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: .92rem; color: var(--muted); }
 .stats b { color: var(--ink); }
-.icon-strip { display: flex; margin-top: 34px; padding-left: 12px; flex-wrap: wrap; row-gap: 10px; }
+.icon-strip { display: flex; margin-top: 34px; flex-wrap: wrap; gap: 14px; }
 .icon-strip img {
-  width: 60px; height: 60px; border-radius: 16px; object-fit: cover; margin-left: -12px;
+  width: 60px; height: 60px; border-radius: 16px; object-fit: cover;
   border: 3px solid var(--bg); box-shadow: var(--shadow); background: var(--card);
   transition: transform .2s ease;
 }
