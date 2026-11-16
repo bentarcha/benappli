@@ -5,6 +5,7 @@
 //   - la liste de liens en bas de index.html (entre les repères « fiches:debut » et « fiches:fin »).
 // À relancer après toute modification de data/apps.js :   node outils/generer-pages.mjs
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
@@ -241,3 +242,16 @@ if (!/<!-- fiches:debut -->/.test(idx)) throw new Error("Repères fiches:debut /
 write("index.html", idx.replace(/<!-- fiches:debut -->[\s\S]*?<!-- fiches:fin -->/, block));
 
 console.log(`${APPS.length} pages, sitemap.xml (${urls.length} adresses), robots.txt et liens de index.html générés.`);
+
+// --- Numéro de version des fichiers de style et de script ---
+// Ajoute « ?v=… » (empreinte du contenu) aux liens, pour que les navigateurs rechargent un fichier modifié
+// au lieu de garder l'ancienne version en mémoire.
+const stampPaths = ["assets/style.css", "assets/common.js", "assets/app.js", "assets/page.js", "assets/privacy.js", "data/apps.js"];
+const stamp = Object.fromEntries(stampPaths.map((f) => [f, crypto.createHash("sha1").update(fs.readFileSync(path.join(root, f))).digest("hex").slice(0, 8)]));
+const stampRe = /((?:\.\.\/)?(assets\/(?:style\.css|common\.js|app\.js|page\.js|privacy\.js)|data\/apps\.js))(\?v=[0-9a-f]+)?(?=")/g;
+for (const f of ["index.html", "confidentialite.html", ...APPS.map((a) => `${a.id}/index.html`)]) {
+  const before = read(f);
+  const after = before.replace(stampRe, (_, whole, file) => `${whole}?v=${stamp[file]}`);
+  if (after !== before) write(f, after);
+}
+console.log("Numéros de version ajoutés aux fichiers de style et de script.");
