@@ -5,6 +5,8 @@ window.SITE = {
   // Laissez vide si les fichiers .apk sont à côté de index.html.
   // Pour les héberger ailleurs (GitHub Releases...), indiquez l'adresse du dossier, par exemple :
   // "https://github.com/VOTRE-NOM/VOTRE-DEPOT/releases/latest/download/"
+  // Adresse publique du site (utilisée par le plan du site et les pages de chaque application).
+  "url": "https://bentarcha.github.io/benappli/",
   "downloadBase": "https://github.com/bentarcha/benappli/releases/latest/download/",
   // Adresse affichée en bas de page et utilisée par « Signaler un problème » (laissez vide pour la masquer).
   "contact": "belaid.bentarcha@gmail.com",

@@ -55,3 +55,17 @@ Le comptage ne fonctionne qu'en ligne, jamais quand vous ouvrez `index.html` dir
 
 ## Crédits
 QR code : [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (licence MIT), dans `assets/vendor/`.
+
+## Pages par application, plan du site (référencement)
+
+Chaque application a sa propre page (`carbuprix/`, `dama8/`...) avec son titre, sa description et des données structurées pour les moteurs de recherche. Elles sont **générées** à partir de `data/apps.js`, ainsi que `sitemap.xml`, `robots.txt` et la liste de liens en bas de `index.html`.
+
+Après toute modification de `data/apps.js` (nouvelle application, texte changé…), relancez :
+
+```
+node outils/generer-pages.mjs
+```
+
+(Node.js est nécessaire ; ne modifiez pas à la main les pages générées, elles seraient écrasées.)
+
+Pour apparaître dans Google : ajoutez le site dans **Search Console** (propriété « Préfixe d'URL » `https://bentarcha.github.io/benappli/`), puis envoyez `sitemap.xml` dans « Sitemaps ». Note : `robots.txt` n'est pris en compte par les moteurs que s'il est à la racine du domaine ; sur un site de projet GitHub Pages, c'est le plan du site envoyé dans Search Console qui compte.
