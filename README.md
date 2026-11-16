@@ -58,7 +58,7 @@ QR code : [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 
 
 ## Pages par application, plan du site (référencement)
 
-Chaque application a sa propre page (`carbuprix/`, `dama8/`...) avec son titre, sa description et des données structurées pour les moteurs de recherche. Elles sont **générées** à partir de `data/apps.js`, ainsi que `sitemap.xml`, `robots.txt` et la liste de liens en bas de `index.html`.
+Chaque application a sa propre page (`dama8/`, `tangram/`...) avec son titre, sa description et des données structurées pour les moteurs de recherche. Elles sont **générées** à partir de `data/apps.js`, ainsi que `sitemap.xml`, `robots.txt` et la liste de liens en bas de `index.html`.
 
 Après toute modification de `data/apps.js` (nouvelle application, texte changé…), relancez :
 
