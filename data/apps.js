@@ -350,11 +350,11 @@ window.APPS = [
   },
   {
     "id": "liste-courses",
-    "name": "ListeCourses Maison",
+    "name": "Mes courses",
     "category": "outils",
     "type": "android",
     "tagline": "La liste de courses de la maison, partagée entre les téléphones.",
-    "description": "ListeCourses Maison est un catalogue de produits courants, rangés par rayon : fruits et légumes, viandes et poissons, produits laitiers, pains et brioches, épicerie, surgelés, boissons, hygiène et entretien. Cochez un produit pour l'ajouter à la liste de courses, décochez-le une fois dans le panier. Vous pouvez aussi ajouter vos propres produits. Si vous le souhaitez, créez une « maison » et partagez son code : la liste est alors synchronisée entre les téléphones de la famille.",
+    "description": "Mes courses est un catalogue de produits courants, rangés par rayon : fruits et légumes, viandes et poissons, produits laitiers, pains et brioches, épicerie, surgelés, boissons, hygiène et entretien. Cochez un produit pour l'ajouter à la liste de courses, décochez-le une fois dans le panier. Vous pouvez aussi ajouter vos propres produits. Si vous le souhaitez, créez une « maison » et partagez son code : la liste est alors synchronisée entre les téléphones de la famille. Une fois installée, l'application apparaît sur le téléphone sous le nom « ListeCourses Maison ».",
     "features": [
       "Un catalogue de produits courants classés par rayon",
       "Ajout de vos propres produits, avec leur catégorie",
