@@ -504,7 +504,7 @@ window.APPS = [
     },
     "file": "station-service.apk",
     "icon": "assets/icons/station-service.webp",
-    "version": "1.6.5",
+    "version": "1.0",
     "versionCode": "1060500",
     "package": "benappli.stations",
     "size": 37396954,
