@@ -507,7 +507,7 @@ window.APPS = [
     "version": "1.0",
     "versionCode": "1060500",
     "package": "benappli.stations",
-    "size": 37396954,
+    "size": 42156539,
     "minSdk": 26,
     "permissions": [
       "android.permission.ACCESS_COARSE_LOCATION",
