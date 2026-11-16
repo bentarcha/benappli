@@ -15,7 +15,7 @@ window.SITE = {
   "goatcounter": "benappli",
   // Lien pour soutenir le site (Ko-fi, Liberapay...). Affiché seulement en bas de la page d'accueil. Laissez vide pour le masquer.
   // Exemple : "don": "https://ko-fi.com/votre-nom" ou "https://liberapay.com/votre-nom"
-  "don": ""
+  "don": "https://ko-fi.com/benappli"
 };
 
 window.APPS = [
