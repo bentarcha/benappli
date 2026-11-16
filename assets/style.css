@@ -241,3 +241,13 @@ dialog[open] { animation: pop .22s ease; }
 .shots { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 14px; margin: 0 0 20px; -webkit-overflow-scrolling: touch; }
 .shots img { flex: none; height: min(440px, 62vh); width: auto; scroll-snap-align: start; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, .14); background: var(--bg-2); }
 .page .shots { margin-bottom: 12px; }
+
+/* Lien de don (page d'accueil) */
+#foot-don { margin: 14px 0 18px; padding: 16px 20px; font-size: 1.2rem; line-height: 1.6; color: var(--ink); background: #e3f4fb; border: 1px solid #b9e2f3; border-radius: 16px; }
+#foot-don a { display: inline-block; margin: 2px 4px; padding: 6px 18px; border-radius: 999px; background: #1a86b8; color: #fff; font-weight: 700; text-decoration: none; transition: background .15s ease, transform .15s ease; }
+#foot-don a:hover, #foot-don a:focus-visible { background: #126a94; transform: translateY(-1px); }
+@media (prefers-color-scheme: dark) {
+  #foot-don { background: #10303d; border-color: #1f4d61; }
+  #foot-don a { background: #2a9fd1; color: #06202b; }
+  #foot-don a:hover, #foot-don a:focus-visible { background: #4db6e0; }
+}
