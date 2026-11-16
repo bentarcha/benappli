@@ -347,5 +347,46 @@ window.APPS = [
       "android.permission.READ_MEDIA_IMAGES"
     ],
     "updated": "2026-10-20"
+  },
+  {
+    "id": "liste-courses",
+    "name": "ListeCourses Maison",
+    "category": "outils",
+    "type": "android",
+    "tagline": "La liste de courses de la maison, partagée entre les téléphones.",
+    "description": "ListeCourses Maison est un catalogue de produits courants, rangés par rayon : fruits et légumes, viandes et poissons, produits laitiers, pains et brioches, épicerie, surgelés, boissons, hygiène et entretien. Cochez un produit pour l'ajouter à la liste de courses, décochez-le une fois dans le panier. Vous pouvez aussi ajouter vos propres produits. Si vous le souhaitez, créez une « maison » et partagez son code : la liste est alors synchronisée entre les téléphones de la famille.",
+    "features": [
+      "Un catalogue de produits courants classés par rayon",
+      "Ajout de vos propres produits, avec leur catégorie",
+      "Liste de courses : cochez pour ajouter, décochez ou videz en un geste",
+      "Partage de la liste à la famille avec un code de maison, facultatif",
+      "Fonctionne sans Internet : les changements sont envoyés au retour de la connexion",
+      "Trois thèmes de couleur au choix"
+    ],
+    "privacy": [
+      "La liste est enregistrée sur le téléphone. Tant que vous ne créez pas ou ne rejoignez pas de « maison », rien ne la quitte.",
+      "Si vous utilisez une maison partagée, vos articles, le nom de la maison et son code sont enregistrés sur les serveurs Firebase de Google, pour être synchronisés entre les téléphones.",
+      "Le code de la maison permet de rejoindre la liste partagée : ne le donnez qu'à des personnes de confiance.",
+      "Aucune publicité, et aucun outil de mesure d'audience ni de rapport d'erreurs dans l'application."
+    ],
+    "tags": [
+      "courses",
+      "liste",
+      "famille",
+      "supermarché",
+      "partage"
+    ],
+    "file": "Mes-courses.apk",
+    "icon": "assets/icons/liste-courses.svg",
+    "version": "1.0",
+    "versionCode": "1",
+    "package": "fr.maison.listecourses",
+    "size": 6806976,
+    "minSdk": 24,
+    "permissions": [
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.INTERNET"
+    ],
+    "updated": "2026-10-24"
   }
 ];
