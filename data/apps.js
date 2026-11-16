@@ -43,6 +43,10 @@ window.APPS = [
     ],
     "file": "Dama8.apk",
     "icon": "assets/icons/dama8.svg",
+    "screenshots": [
+      { "src": "assets/captures/dama8-1.webp", "alt": "Dama8 : l'accueil du jeu de dames avec le niveau de l'ordinateur et les résultats", "w": 720, "h": 1640 },
+      { "src": "assets/captures/dama8-2.webp", "alt": "Dama8 : une partie de dames contre l'ordinateur, avec la liste des coups", "w": 720, "h": 1640 }
+    ],
     "version": "1.0.0",
     "versionCode": "1",
     "package": "com.example.dames_10x10",
@@ -80,8 +84,8 @@ window.APPS = [
     "file": "Dames-chinoises.apk",
     "icon": "assets/icons/dames-chinoises.png",
     "screenshots": [
-      { "src": "assets/captures/dames-chinoises-1.webp", "alt": "Plateau de dames chinoises au début de la partie : vos billes jaunes en bas, celles de l'ordinateur en haut" },
-      { "src": "assets/captures/dames-chinoises-2.webp", "alt": "Dames chinoises en cours de partie : les billes se croisent au centre du plateau" }
+      { "src": "assets/captures/dames-chinoises-1.webp", "alt": "Plateau de dames chinoises au début de la partie : vos billes jaunes en bas, celles de l'ordinateur en haut", "w": 780, "h": 1688 },
+      { "src": "assets/captures/dames-chinoises-2.webp", "alt": "Dames chinoises en cours de partie : les billes se croisent au centre du plateau", "w": 780, "h": 1688 }
     ],
     "version": "1.0",
     "versionCode": "1",
@@ -120,8 +124,8 @@ window.APPS = [
     "url": "parchis.html",
     "icon": "assets/icons/parchis.svg",
     "screenshots": [
-      { "src": "assets/captures/parchis-1.webp", "alt": "Parchís : le plateau et les dés en début de partie" },
-      { "src": "assets/captures/parchis-2.webp", "alt": "Parchís en pleine partie : les destinations possibles sont en pointillés" }
+      { "src": "assets/captures/parchis-1.webp", "alt": "Parchís : le plateau et les dés en début de partie", "w": 780, "h": 1688 },
+      { "src": "assets/captures/parchis-2.webp", "alt": "Parchís en pleine partie : les destinations possibles sont en pointillés", "w": 780, "h": 1688 }
     ],
     "version": "web",
     "updated": "2026-11-13"
@@ -152,6 +156,10 @@ window.APPS = [
     ],
     "file": "Tangram.apk",
     "icon": "assets/icons/tangram.png",
+    "screenshots": [
+      { "src": "assets/captures/tangram-1.webp", "alt": "Tangram : une silhouette à reconstituer avec les sept pièces colorées", "w": 720, "h": 1640 },
+      { "src": "assets/captures/tangram-2.webp", "alt": "Tangram : la solution affichée, pièce par pièce", "w": 720, "h": 1640 }
+    ],
     "version": "1.0.0",
     "versionCode": "1",
     "package": "fr.codex.tangram",
@@ -190,8 +198,8 @@ window.APPS = [
     "file": "MathPrim.apk",
     "icon": "assets/icons/mathprim.png",
     "screenshots": [
-      { "src": "assets/captures/mathprim-1.webp", "alt": "MathPrim : l'accueil avec le défi du jour, le sprint et les thèmes de calcul" },
-      { "src": "assets/captures/mathprim-2.webp", "alt": "MathPrim : une multiplication à résoudre avec le clavier numérique" }
+      { "src": "assets/captures/mathprim-1.webp", "alt": "MathPrim : l'accueil avec le défi du jour, le sprint et les thèmes de calcul", "w": 780, "h": 1688 },
+      { "src": "assets/captures/mathprim-2.webp", "alt": "MathPrim : une multiplication à résoudre avec le clavier numérique", "w": 780, "h": 1688 }
     ],
     "version": "1.0",
     "versionCode": "1",
@@ -269,6 +277,10 @@ window.APPS = [
     ],
     "file": "Stop-Spam.apk",
     "icon": "assets/icons/stop-spam.svg",
+    "screenshots": [
+      { "src": "assets/captures/stop-spam-1.webp", "alt": "Stop Spam : la protection est active, avec le compteur d'appels bloqués", "w": 720, "h": 1640 },
+      { "src": "assets/captures/stop-spam-2.webp", "alt": "Stop Spam : la gestion des préfixes de démarchage téléphonique", "w": 720, "h": 1640 }
+    ],
     "version": "1.0.2",
     "versionCode": "3",
     "package": "com.stopdemarchage",
@@ -390,6 +402,10 @@ window.APPS = [
     ],
     "file": "Mes-courses.apk",
     "icon": "assets/icons/liste-courses.svg",
+    "screenshots": [
+      { "src": "assets/captures/liste-courses-1.webp", "alt": "Mes courses : trois produits cochés dans la liste de pains et brioches", "w": 720, "h": 1640 },
+      { "src": "assets/captures/liste-courses-2.webp", "alt": "Mes courses : la liste de courses du jour avec les produits cochés", "w": 720, "h": 1640 }
+    ],
     "version": "1.0",
     "versionCode": "1",
     "package": "fr.maison.listecourses",

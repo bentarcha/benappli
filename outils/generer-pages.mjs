@@ -147,7 +147,7 @@ ${a.screenshots && a.screenshots.length ? `
     <section aria-labelledby="captures">
       <h2 id="captures">Aperçu</h2>
       <div class="shots" tabindex="0" role="group" aria-label="Captures d'écran">
-        ${a.screenshots.map((x) => `<img src="../${esc(x.src)}" alt="${esc(x.alt)}" width="390" height="844" loading="lazy">`).join("\n        ")}
+        ${a.screenshots.map((x) => `<img src="../${esc(x.src)}" alt="${esc(x.alt)}" width="${x.w || 390}" height="${x.h || 844}" loading="lazy">`).join("\n        ")}
       </div>
     </section>
 ` : ""}${a.features && a.features.length ? `

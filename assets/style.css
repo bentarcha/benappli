@@ -239,5 +239,5 @@ dialog[open] { animation: pop .22s ease; }
 
 /* Captures d'écran */
 .shots { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 14px; margin: 0 0 20px; -webkit-overflow-scrolling: touch; }
-.shots img { flex: none; height: min(440px, 62vh); width: auto; aspect-ratio: 390 / 844; scroll-snap-align: start; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, .14); background: var(--bg-2); }
+.shots img { flex: none; height: min(440px, 62vh); width: auto; scroll-snap-align: start; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, .14); background: var(--bg-2); }
 .page .shots { margin-bottom: 12px; }
