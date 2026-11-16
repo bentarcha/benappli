@@ -12,7 +12,7 @@ window.SITE = {
   "contact": "belaid.bentarcha@gmail.com",
   // Compteur de visites et de téléchargements (GoatCounter, gratuit). Laissez vide pour ne rien mesurer.
   // Créez un compte sur goatcounter.com, choisissez un code (ex. « monsite ») et écrivez-le ici : "goatcounter": "monsite"
-  "goatcounter": ""
+  "goatcounter": "benappli"
 };
 
 window.APPS = [
