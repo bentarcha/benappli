@@ -58,6 +58,7 @@ function jsonLd(a, url, desc) {
     dateModified: a.updated,
   };
   if (a.altName) o.alternateName = a.altName;
+  if (a.screenshots && a.screenshots.length) o.screenshot = a.screenshots.map((x) => BASE + x.src);
   if (!web) { o.downloadUrl = dlUrl(a); o.softwareVersion = a.version; }
   if (a.libre) o.isBasedOn = { "@type": "SoftwareApplication", name: a.libre.nom, url: a.libre.source };
   return JSON.stringify(o).replace(/</g, "\\u003c");
@@ -142,7 +143,14 @@ function page(a) {
       <h2 id="presentation">${web ? "Le jeu" : "L'application"}</h2>
       <p>${esc(a.description)}</p>
     </section>
-${a.features && a.features.length ? `
+${a.screenshots && a.screenshots.length ? `
+    <section aria-labelledby="captures">
+      <h2 id="captures">Aperçu</h2>
+      <div class="shots" tabindex="0" role="group" aria-label="Captures d'écran">
+        ${a.screenshots.map((x) => `<img src="../${esc(x.src)}" alt="${esc(x.alt)}" width="390" height="844" loading="lazy">`).join("\n        ")}
+      </div>
+    </section>
+` : ""}${a.features && a.features.length ? `
     <section aria-labelledby="contenu-app">
       <h2 id="contenu-app">Ce que vous y trouverez</h2>
       <ul class="feats">

@@ -79,6 +79,10 @@ window.APPS = [
     ],
     "file": "Dames-chinoises.apk",
     "icon": "assets/icons/dames-chinoises.png",
+    "screenshots": [
+      { "src": "assets/captures/dames-chinoises-1.webp", "alt": "Plateau de dames chinoises au début de la partie : vos billes jaunes en bas, celles de l'ordinateur en haut" },
+      { "src": "assets/captures/dames-chinoises-2.webp", "alt": "Dames chinoises en cours de partie : les billes se croisent au centre du plateau" }
+    ],
     "version": "1.0",
     "versionCode": "1",
     "package": "com.dameschinoises.app",
@@ -115,6 +119,10 @@ window.APPS = [
     ],
     "url": "parchis.html",
     "icon": "assets/icons/parchis.svg",
+    "screenshots": [
+      { "src": "assets/captures/parchis-1.webp", "alt": "Parchís : le plateau et les dés en début de partie" },
+      { "src": "assets/captures/parchis-2.webp", "alt": "Parchís en pleine partie : les destinations possibles sont en pointillés" }
+    ],
     "version": "web",
     "updated": "2026-11-13"
   },
@@ -181,6 +189,10 @@ window.APPS = [
     ],
     "file": "MathPrim.apk",
     "icon": "assets/icons/mathprim.png",
+    "screenshots": [
+      { "src": "assets/captures/mathprim-1.webp", "alt": "MathPrim : l'accueil avec le défi du jour, le sprint et les thèmes de calcul" },
+      { "src": "assets/captures/mathprim-2.webp", "alt": "MathPrim : une multiplication à résoudre avec le clavier numérique" }
+    ],
     "version": "1.0",
     "versionCode": "1",
     "package": "fr.mathprim.app",

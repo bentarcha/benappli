@@ -135,6 +135,8 @@
           a.altName && h("p", { lang: "ar", dir: "rtl" }, a.altName),
           !web && h("p", {}, a.package))),
       h("p", { class: "desc" }, a.description),
+      a.screenshots && a.screenshots.length && h("div", { class: "shots", tabindex: 0, role: "group", "aria-label": "Captures d'écran" },
+        a.screenshots.map((x) => h("img", { src: x.src, alt: x.alt, width: 390, height: 844, loading: "lazy" }))),
       a.features && a.features.length && h("ul", { class: "feats", "aria-label": "Ce que vous y trouverez" }, a.features.map((f) => h("li", {}, f))),
       h("div", { class: "dlg-actions" }, primaryButton(a),
         h("button", { class: "btn", type: "button", onclick: (e) => copyText(absoluteUrl("#" + a.id), e.currentTarget, "Copier le lien de cette page") }, "Copier le lien de cette page")),
